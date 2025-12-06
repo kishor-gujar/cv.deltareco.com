@@ -1,0 +1,31 @@
+﻿@model cv.deltareco.com.Models.UploadCVViewModel
+@{
+    Layout = "/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Upload CV";
+}
+
+<div class="page-wrapper">
+    <div class="content">
+
+    <h3>Upload CV (PDF/DOC/DOCX)</h3>
+
+    <form method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label class="form-label">Select CV(s)</label>
+            <input type="file" name="CVFiles" class="form-control" multiple accept=".pdf,.doc,.docx" />
+        </div>
+
+        <button type="submit" class="btn btn-success">Upload</button>
+    </form>
+
+    @if (TempData["success"] != null)
+    {
+        <div class="alert alert-success mt-3">@TempData["success"]</div>
+    }
+
+    @if (TempData["error"] != null)
+    {
+        <div class="alert alert-danger mt-3">@TempData["error"]</div>
+    }
+    </div>
+</div>

@@ -1,0 +1,80 @@
+﻿@using cv.deltareco.com.Models
+@model IEnumerable<CandidateProfile>
+
+@{
+    ViewData["Title"] = "Extracted Candidate Profiles";
+    Layout = "/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="page-wrapper">
+    <div class="content">
+
+        <div class="page-header">
+            <div class="row">
+                <div class="col">
+                    <h3 class="page-title">Extracted Candidate Profiles</h3>
+
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/Admin">Admin</a></li>
+                        <li class="breadcrumb-item active">Profiles</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Mobile</th>
+                                <th>Education</th>
+                                <th>Experience</th>
+                                <th>Skills</th>
+                              @*   <th>CV</th> *@
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @if (!Model.Any())
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">No profiles extracted yet.</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                int i = 1;
+                                foreach (var p in Model)
+                                {
+                                    <tr>
+                                        <td>@i</td>
+                                        <td>@p.CandidateName</td>
+                                        <td>@p.Email</td>
+                                        <td>@p.Mobile</td>
+                                        <td>@p.Education</td>
+                                        <td>@p.Experience</td>
+                                        <td>@p.Skills</td>
+                                       @*  <td>
+                                            <a href="/@p.CV.FilePath" target="_blank" class="btn btn-sm btn-info">
+                                                <i class="fa fa-eye"></i> View CV
+                                            </a>
+                                        </td> *@
+                                    </tr>
+                                    i++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

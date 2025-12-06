@@ -1,0 +1,29 @@
+﻿@model cv.deltareco.com.Models.CandidateCV
+
+@{
+    ViewData["Title"] = "Delete CV";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="page-wrapper">
+    <div class="content">
+
+        <h3 class="text-danger">Delete CV</h3>
+        <p>Are you sure you want to delete this CV?</p>
+
+        <dl class="row">
+            <dt class="col-sm-3">File Name:</dt>
+            <dd class="col-sm-9">@Model.FileName</dd>
+
+            <dt class="col-sm-3">Uploaded On:</dt>
+            <dd class="col-sm-9">@Model.UploadedOn.ToString("dd MMM yyyy, hh:mm tt")</dd>
+        </dl>
+
+        <form asp-action="Delete" method="post">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </form>
+
+    </div>
+</div>

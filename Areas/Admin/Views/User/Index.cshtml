@@ -1,0 +1,90 @@
+﻿@using cv.deltareco.com.Models
+@model IEnumerable<ApplicationUser>
+
+@{
+    ViewData["Title"] = "Users";
+    Layout = "/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Page Wrapper -->
+<div class="page-wrapper">
+    <div class="content">
+
+        <div class="container-fluid px-0">
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold mb-0">User Management</h3>
+                <a asp-action="Create" class="btn btn-primary shadow px-4">
+                    <i class="fa fa-user-plus me-2"></i> Add User
+                </a>
+            </div>
+
+            <!-- Card -->
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-4">
+
+                    <!-- Table -->
+                    <table id="usersTable" class="table table-striped table-bordered table-hover align-middle rounded-3" style="width:100%">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var user in Model)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@user.FullName</td>
+                                    <td>@user.Email</td>
+                                    <td>@user.PhoneNumber</td>
+
+                                    <td class="text-center">
+                                        <a asp-action="Edit" asp-route-id="@user.Id"
+                                           class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+
+                                        <a asp-action="Delete" asp-route-id="@user.Id"
+                                           class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+@section Scripts{
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#usersTable').DataTable({
+                pageLength: 10,
+                lengthMenu: [5, 10, 25, 50],
+                ordering: true,
+                responsive: true,
+                language: {
+                    search: "Search User:",
+                    lengthMenu: "Show _MENU_ entries"
+                }
+            });
+        });
+    </script>
+
+}

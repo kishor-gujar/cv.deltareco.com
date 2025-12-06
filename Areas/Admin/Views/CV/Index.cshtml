@@ -1,0 +1,149 @@
+﻿@using cv.deltareco.com.Models
+@model IEnumerable<CandidateCV>
+
+@{
+    ViewData["Title"] = "CV List";
+Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+}
+<div class="page-wrapper">
+    <div class="content">
+
+<div class="page-header">
+    <div class="row">
+        <div class="col">
+            <h3 class="page-title">Uploaded CV List</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/Admin">Admin</a></li>
+                <li class="breadcrumb-item active">CV List</li>
+            </ul>
+        </div>
+        <div class="col-auto">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadCVModal">
+                        <i class="fa fa-upload me-1"></i> Upload New CV
+                    </button>
+
+        </div>
+    </div>
+</div>
+        <!-- Upload CV Modal -->
+        <div class="modal fade" id="uploadCVModal" tabindex="-1" aria-labelledby="uploadCVModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="uploadCVModalLabel">Upload CV (PDF / DOC / DOCX)</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <form asp-area="Admin" asp-controller="CV" asp-action="Upload" method="post" enctype="multipart/form-data">
+                        <div class="modal-body">
+
+                            <div class="mb-3">
+                                <label class="form-label">Select CV File(s)</label>
+                                <input type="file" name="CVFiles" id="cvInput" class="form-control" multiple accept=".pdf,.doc,.docx" />
+                                <small class="text-muted">Max 5 MB per file</small>
+                                <div id="fileError" class="text-danger small mt-1"></div>
+                            </div>
+
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" id="submitBtn" class="btn btn-success">Upload</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>File Name</th>
+                        <th>Uploaded On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">
+                                No CVs uploaded yet.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        int i = 1;
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@i</td>
+                                <td>@item.FileName</td>
+                                <td>@item.UploadedOn.ToString("dd MMM yyyy, hh:mm tt")</td>
+
+                                <td>
+                                    <a href="@item.FilePath" target="_blank" class="btn btn-sm btn-info">
+                                        <i class="fa fa-eye"></i> View
+                                    </a>
+                                            <a asp-area="Admin"
+                                               asp-controller="CV"
+                                               asp-action="Extract"
+                                               asp-route-id="@item.Id"
+                                               class="btn btn-sm btn-primary">
+                                                Extract
+                                            </a>
+
+                                    <a href="@item.FilePath" download class="btn btn-sm btn-success">
+                                        <i class="fa fa-download"></i> Download
+                                    </a>
+
+                                    <a asp-area="Admin"
+                                       asp-controller="CV"
+                                       asp-action="Delete"
+                                       asp-route-id="@item.Id"
+                                     >
+
+                                        <i class="fa fa-trash"></i> Delete
+                                    </a>
+                                </td>
+                            </tr>
+
+                            i++;
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+@section Scripts{
+            <script>
+                document.getElementById("cvInput").addEventListener("change", function () {
+
+                    const maxSize = 5 * 1024 * 1024; // 5 MB
+                    const files = this.files;
+                    let error = "";
+
+                    for (let i = 0; i < files.length; i++) {
+                        if (files[i].size > maxSize) {
+                            error = "Each file must be 5 MB or smaller.";
+                        }
+                    }
+
+                    document.getElementById("fileError").innerText = error;
+                    document.getElementById("submitBtn").disabled = error !== "";
+                });
+            </script>
+
+}
