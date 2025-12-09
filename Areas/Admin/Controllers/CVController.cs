@@ -104,15 +104,15 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
 
                 _context.CandidateCVs.Add(cv);
             }
-
+            //                      await _log.LogAsync("CV", "Create",
+            //    user.Id.ToString(),
+            //    null,
+            //    user,
+            //    User.Identity.Name
+            //);
+       
             await _context.SaveChangesAsync();
-//            await _log.LogAsync( "CV","Create",
-//    user.Id.ToString(),
-//    null,
-//    user,
-//    User.Identity.Name
-//);
-
+  
             TempData["success"] = "CV(s) uploaded successfully!";
             return RedirectToAction("Index");
         }
@@ -166,16 +166,33 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
             cv.FilePath = "/CVs/" + FileName;
             _context.CandidateCVs.Update(cv);
 
-            await _context.SaveChangesAsync();
-//            await _log.LogAsync("CV", "Edit",
-// user.Id.ToString(),
-// null,
-// user,
-// User.Identity.Name
-//);
             TempData["success"] = "CV updated successfully!";
+            await _context.SaveChangesAsync();
+
             return RedirectToAction("Index");
         }
+        [HttpPost]
+        public IActionResult BulkDelete(List<int> ids)
+        {
+            if (ids == null || ids.Count == 0)
+                return RedirectToAction("Index");
+
+            var cvFiles = _context.CandidateCVs.Where(x => ids.Contains(x.Id)).ToList();
+
+            // delete physical files too
+            foreach (var file in cvFiles)
+            {
+                if (System.IO.File.Exists(file.FilePath))
+                    System.IO.File.Delete(file.FilePath);
+            }
+
+            _context.CandidateCVs.RemoveRange(cvFiles);
+            _context.SaveChanges();
+
+            TempData["Success"] = "Selected CVs deleted successfully!";
+            return RedirectToAction("Index");
+        }
+
 
         // GET: Show Delete confirmation page
         [HttpGet]
@@ -205,17 +222,13 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "CVs", cv.FileName);
 
             if (System.IO.File.Exists(filePath))
-                System.IO.File.Delete(filePath);
+                System.IO.File.Delete(filePath); 
+            await _log.LogDeleteAsync(cv);
 
             // Remove from DB
             _context.CandidateCVs.Remove(cv);
             await _context.SaveChangesAsync();
-//            await _log.LogAsync("CV", "Delete",
-//user.Id.ToString(),
-//null,
-//user,
-//User.Identity.Name
-//);
+
             TempData["success"] = "CV deleted successfully!";
             return RedirectToAction("Index");
         }
@@ -284,15 +297,85 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
                 CandidateCVId = cv.Id   // IMPORTANT: Now FK will NOT fail
             };
 
-            _context.CandidateProfiles.Add(profile);
-            await _context.SaveChangesAsync();
 //            await _log.LogAsync("CV", "Extracted",
 //user.Id.ToString(),
 //null,
 //user,
 //User.Identity.Name
 //);
+            _context.CandidateProfiles.Add(profile);
+            await _context.SaveChangesAsync();
+
             TempData["success"] = "Candidate details extracted successfully!";
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public async Task<IActionResult> BulkExtract(List<int> ids)
+        {
+            if (ids == null || ids.Count == 0)
+            {
+                TempData["error"] = "Please select at least one CV.";
+                return RedirectToAction("Index");
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+
+            foreach (var id in ids)
+            {
+                var cv = await _context.CandidateCVs.FirstOrDefaultAsync(x => x.Id == id);
+                if (cv == null) continue;
+
+                string fullPath = Path.Combine(_env.WebRootPath, cv.FilePath.TrimStart('/'));
+
+                if (!System.IO.File.Exists(fullPath)) continue;
+
+                string extension = Path.GetExtension(fullPath).ToLower();
+                string text = "";
+
+                switch (extension)
+                {
+                    case ".pdf":
+                        text = ExtractTextFromPdf(fullPath);
+                        break;
+
+                    case ".docx":
+                        text = ExtractTextFromDocx(fullPath);
+                        break;
+
+                    case ".doc":
+                        text = ExtractTextFromDoc(fullPath);
+                        break;
+                }
+
+                if (string.IsNullOrEmpty(text))
+                    continue;
+
+                // Extract details
+                string name = ExtractName(text);
+                string email = ExtractEmail(text);
+                string mobile = ExtractMobile(text);
+                string skills = ExtractSkills(text);
+                string education = ExtractEducation(text);
+                string experience = ExtractExperience(text);
+
+                // Save into Profile table
+                var profile = new CandidateProfile
+                {
+                    CandidateName = name,
+                    Email = email,
+                    Mobile = mobile,
+                    Education = education,
+                    Experience = experience,
+                    Skills = skills,
+                    CandidateCVId = cv.Id
+                };
+
+                _context.CandidateProfiles.Add(profile);
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["success"] = "Bulk extraction completed successfully!";
             return RedirectToAction("Index");
         }
 

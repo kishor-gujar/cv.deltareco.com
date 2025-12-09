@@ -37,7 +37,7 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
                             .OrderByDescending(x => x.Id)
                             .Take(10) // last 10 entries only
                             .ToListAsync();
-           
+            var activity = await _context.ActivityLogs.OrderByDescending(x => x.PerformedAt).Take(10).ToListAsync();
             var cvs = await _context.CandidateCVs.OrderBy(x => x.UploadedOn).Take(10).ToListAsync();
             var vm = new HomeViewModel
             {
@@ -50,6 +50,7 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
                 Profiles = candidatesprofile,
                 CandidateCVs = cvs,
                 RecentUploadedCVCounts =todaysCVCount,
+                ActivityLogs = activity
 
             };
             // Count per month for Profiles

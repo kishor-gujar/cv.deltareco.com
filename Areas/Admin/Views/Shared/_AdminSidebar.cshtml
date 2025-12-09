@@ -154,3 +154,76 @@
 	</div>
 </div>
 <!-- /Sidebar -->
+@* <style>
+	/* Sidebar Gradient Background */
+	#sidebar {
+		background: linear-gradient(180deg, #4f46e5, #6d28d9, #8b5cf6);
+		color: #fff !important;
+	}
+
+		/* All icons & text white */
+		#sidebar a,
+		#sidebar i,
+		#sidebar span,
+		#sidebar h6,
+		#sidebar p {
+			color: #fff !important;
+		}
+
+		/* Menu link styles */
+		#sidebar .sidebar-menu a {
+			padding: 12px 18px;
+			border-radius: 8px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			margin-bottom: 6px;
+			transition: 0.25s;
+		}
+
+			/* Hover Effect */
+			#sidebar .sidebar-menu a:hover {
+				background: rgba(255, 255, 255, 0.25);
+				transform: translateX(4px);
+			}
+
+		
+
+	/* Remove grey backgrounds from user/info blocks */
+	.modern-profile .bg-light,
+	.sidebar-header .bg-light,
+	.sidebar .bg-light {
+		background: rgba(255, 255, 255, 0.15) !important;
+		color: #fff !important;
+	}
+
+	/* Make inputs match theme */
+	#sidebar input.form-control {
+		background: rgba(255, 255, 255, 0.12);
+		border: none;
+		color: #fff;
+	}
+
+		#sidebar input.form-control::placeholder {
+			color: #ddd;
+		}
+</style> *@
+<style>
+		/* Active Menu Highlight */
+			#sidebar .sidebar-menu a.active {
+				background: rgba(255, 255, 255, 0.35);
+				box-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
+				font-weight: 600;
+				transform: translateX(5px);
+			}
+</style>
+<script>
+	const links = document.querySelectorAll("#sidebar .sidebar-menu a");
+
+	links.forEach(link => {
+		if (link.href === window.location.href) {
+			link.classList.add("active");
+		}
+	});
+</script>
+sss

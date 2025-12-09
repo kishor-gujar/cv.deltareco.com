@@ -17,6 +17,7 @@ namespace cv.deltareco.com.ViewModels
         public List<CandidateProfile> Profiles { get; set; }
         public List<ApplicationUser> User { get; set; }
     public List<CandidateCV> CandidateCVs { get; set; }
+        public List<ActivityLog> ActivityLogs { get; set; }
 }
 
 }

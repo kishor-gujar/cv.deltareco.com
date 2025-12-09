@@ -63,7 +63,7 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
                 foreach (var error in result.Errors)
                     ModelState.AddModelError("", error.Description);
             }
-
+            await _log.LogCreateAsync(model);
             return View(model);
         }
         // ============================================
@@ -94,12 +94,7 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
                 return NotFound();
 
             var result = await _userManager.DeleteAsync(user);
-//            await _log.LogAsync("User's", "Delete",
-//user.Id.ToString(),
-//null,
-//user,
-//User.Identity.Name
-//);
+            await _log.LogDeleteAsync(user);
 
             if (result.Succeeded)
             {
@@ -156,12 +151,7 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
             user.PhoneNumber = model.PhoneNumber;
 
             var result = await _userManager.UpdateAsync(user);
-//            await _log.LogAsync("User's", "Edit",
-//user.Id.ToString(),
-//null,
-//user,
-//User.Identity.Name
-//);
+            await _log.LogUpdateAsync(user, model);
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)

@@ -129,6 +129,7 @@
         }
 
         .login-container {
+            border: 4px solid orange;
             width: 100%;
             max-width: 420px;
             background: #fff;
@@ -136,7 +137,13 @@
             border-radius: 20px;
             box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15);
             animation: fadeIn 0.8s ease;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
+
+            .login-container:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 45px rgba(0, 0, 0, 0.25);
+            }
 
         @@keyframes fadeIn {
             from {
@@ -149,10 +156,11 @@
                 transform: translateY(0);
             }
         }
+
         @@media (max-width: 576px) {
             .login-container {
                 max-width: 340px !important;
-                padding: 25px; /* optional, looks better on small screens */
+                padding: 25px;
             }
         }
 
@@ -166,7 +174,38 @@
             width: 90px;
             display: block;
             margin: 0 auto 15px;
+            transition: transform 0.3s;
         }
+
+            .brand-logo img:hover {
+                transform: scale(1.1);
+            }
+
+        .form-control {
+            height: 45px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+            .form-control:focus {
+                border-color: #001f54;
+                box-shadow: 0 0 8px rgba(0, 31, 84, 0.3);
+                outline: none;
+            }
+
+        .toggle-eye {
+            position: absolute;
+            top: 46px;
+            right: 15px;
+            cursor: pointer;
+            color: #ff8c42;
+            transition: color 0.3s;
+        }
+
+            .toggle-eye:hover {
+                color: #001f54;
+            }
 
         .btn-primary {
             background-color: #001f54 !important; /* Navy Blue */
@@ -175,20 +214,25 @@
             height: 45px;
             font-size: 16px;
             font-weight: 600;
+            transition: background-color 0.3s, transform 0.2s;
         }
 
-        .form-control {
-            height: 45px;
-            border-radius: 12px;
-            border: 1px solid #ddd;
+            .btn-primary:hover {
+                background-color: #233d84 !important;
+                transform: translateY(-2px);
+            }
+
+            .btn-primary:active {
+                transform: translateY(0);
+            }
+
+        .form-check-input:checked {
+            background-color: #001f54;
+            border-color: #001f54;
         }
 
-        .toggle-eye {
-            position: absolute;
-            top: 46px;
-            right: 15px;
-            cursor: pointer;
-            color: #ff8c42;
+        .text-danger {
+            font-size: 0.85rem;
         }
     </style>
 

@@ -1,9 +1,35 @@
 ﻿@model ActivityLog
 
 @{
-    ViewData["Title"] = "Log Details";
+    ViewData["Title"] = "Activity Log Details";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
+
+<style>
+    .detail-box {
+        border: 1px solid #e5e5e5;
+        padding: 12px 15px;
+        border-radius: 8px;
+        background: #fafafa;
+        font-weight: 600;
+    }
+
+    .section-title {
+        border-left: 4px solid #007bff;
+        padding-left: 10px;
+        font-weight: bold;
+        margin-bottom: 12px;
+        margin-top: 20px;
+    }
+
+    .card-custom {
+        border-radius: 15px !important;
+        border: none;
+        background: #ffffff;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+</style>
+
 
 <div class="page-wrapper">
     <div class="content">
@@ -26,32 +52,35 @@
             </a>
         </div>
 
-        <!-- Details Card -->
-        <div class="card shadow-lg rounded-4"
-             style="backdrop-filter: blur(12px); background: rgba(255,255,255,0.15);">
 
+        <!-- Details Card -->
+        <div class="card card-custom">
             <div class="card-body p-4">
 
-                <!-- Info Row -->
+                <!-- BASIC DETAILS -->
+                <div class="section-title text-primary">
+                    Basic Information
+                </div>
+
                 <div class="row g-3 mb-4">
 
                     <div class="col-md-3">
-                        <label class="fw-bold text-muted">Log ID</label>
-                        <div class="form-control bg-light">@Model.Id</div>
+                        <label class="text-muted small">Log ID</label>
+                        <div class="detail-box">@Model.Id</div>
                     </div>
 
                     <div class="col-md-3">
-                        <label class="fw-bold text-muted">Table Name</label>
-                        <div class="form-control bg-light">@Model.TableName</div>
+                        <label class="text-muted small">Table Name</label>
+                        <div class="detail-box">@Model.TableName</div>
                     </div>
 
                     <div class="col-md-3">
-                        <label class="fw-bold text-muted">Record ID</label>
-                        <div class="form-control bg-light">@Model.RecordId</div>
+                        <label class="text-muted small">Record ID</label>
+                        <div class="detail-box">@Model.RecordId</div>
                     </div>
 
                     <div class="col-md-3">
-                        <label class="fw-bold text-muted">Action</label>
+                        <label class="text-muted small">Action</label>
                         <div>
                             @if (Model.ActionType == "Create")
                             {
@@ -74,45 +103,105 @@
 
                 </div>
 
-                <!-- Performed Info -->
+
+
+                <!-- USER DETAILS -->
+                <div class="section-title text-primary">
+                    Action Performed By
+                </div>
+
                 <div class="row g-3 mb-4">
 
                     <div class="col-md-6">
-                        <label class="fw-bold text-muted">Performed By</label>
-                        <div class="form-control bg-light">@Model.PerformedBy</div>
+                        <label class="text-muted small">User</label>
+                        <div class="detail-box">@Model.PerformedBy</div>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="fw-bold text-muted">Performed At</label>
-                        <div class="form-control bg-light">
+                        <label class="text-muted small">Date & Time</label>
+                        <div class="detail-box">
                             @Model.PerformedAt.ToString("dd MMM yyyy, hh:mm tt")
                         </div>
                     </div>
 
                 </div>
 
-                <!-- JSON Data Section -->
-                <div class="mb-4">
-                    <h5 class="text-primary fw-bold mb-2">
-                        <i class="fa fa-database me-2"></i>Old Data
-                    </h5>
-                    <pre class="p-3 rounded-4 bg-dark text-white shadow-sm" 
-                         style="font-size:14px; white-space:pre-wrap;">
-@Model.OldValues
-                    </pre>
+
+
+                <!-- OLD DATA SECTION -->
+                <div class="section-title">Old Data</div>
+
+                <div class="row g-3 mb-4">
+                    @{
+                        var oldData = new Dictionary<string, string>();
+                        try
+                        {
+                            if (!string.IsNullOrEmpty(Model.OldValues))
+                            {
+                                oldData = Newtonsoft.Json.JsonConvert
+                                .DeserializeObject<Dictionary<string, string>>(Model.OldValues);
+                            }
+                        }
+                        catch { oldData = new Dictionary<string, string>(); }
+                    }
+
+                    @if (oldData.Count == 0)
+                    {
+                        <div class="col-12">
+                            <div class="detail-box">No Old Data Found</div>
+                        </div>
+                    }
+                    else
+                    {
+                        foreach (var item in oldData)
+                        {
+                            <div class="col-md-4">
+                                <label class="text-muted small">@item.Key</label>
+                                <div class="detail-box">@item.Value</div>
+                            </div>
+                        }
+                    }
                 </div>
 
-                <div class="mb-4">
-                    <h5 class="text-primary fw-bold mb-2">
-                        <i class="fa fa-database me-2"></i>New Data
-                    </h5>
-                    <pre class="p-3 rounded-4 bg-dark text-white shadow-sm"
-                         style="font-size:14px; white-space:pre-wrap;">
-@Model.NewValues
-                    </pre>
+
+
+                <!-- NEW DATA SECTION -->
+                <div class="section-title">New Data</div>
+
+                <div class="row g-3 mb-4">
+                    @{
+                        var newData = new Dictionary<string, string>();
+                        try
+                        {
+                            if (!string.IsNullOrEmpty(Model.NewValues))
+                            {
+                                newData = Newtonsoft.Json.JsonConvert
+                                .DeserializeObject<Dictionary<string, string>>(Model.NewValues);
+                            }
+                        }
+                        catch { newData = new Dictionary<string, string>(); }
+                    }
+
+                    @if (newData.Count == 0)
+                    {
+                        <div class="col-12">
+                            <div class="detail-box">No New Data Found</div>
+                        </div>
+                    }
+                    else
+                    {
+                        foreach (var item in newData)
+                        {
+                            <div class="col-md-4">
+                                <label class="text-muted small">@item.Key</label>
+                                <div class="detail-box">@item.Value</div>
+                            </div>
+                        }
+                    }
                 </div>
 
-                <!-- Back Button -->
+
+
                 <div class="mt-4 text-end">
                     <a asp-action="Index" class="btn btn-primary px-4 shadow-sm">
                         <i class="fa fa-arrow-left me-1"></i> Back to Logs

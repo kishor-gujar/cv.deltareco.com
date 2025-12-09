@@ -11602,8 +11602,10 @@ wwwroot\assets\scss\vendors\_rangepicker-plugin.scss
 wwwroot\assets\scss\vendors\_select2.scss
 wwwroot\css\site.css
 wwwroot\CVs\0f3091f4-8336-4ddf-940c-42cce4560af9.pdf
+wwwroot\CVs\25c92faf-0eb0-4cb7-8fd1-98c693200c80.docx
 wwwroot\CVs\a0e73b82-922a-4c31-ac0e-d8a2dadd9656.pdf
-wwwroot\CVs\Dummyresume.docx
+wwwroot\CVs\aa8c73ef-8a42-48ce-bc17-63b111835997.pdf
+wwwroot\CVs\Dummyresume (2).docx
 wwwroot\CVs\Provisional_Letter_Abhi_Support_Team.pdf
 wwwroot\CVs\Resume.docx
 wwwroot\favicon.ico
@@ -11668,6 +11670,7 @@ wwwroot\lib\jquery\dist\jquery.slim.js
 wwwroot\lib\jquery\dist\jquery.slim.min.js
 wwwroot\lib\jquery\dist\jquery.slim.min.map
 wwwroot\lib\jquery\LICENSE.txt
+wwwroot\uploads\cvs\7aee6e7b-42ce-4649-b28b-d692cd406cde.docx
 wwwroot\uploads\cv\1fb36a4b-48ba-4e29-9339-ee3edd13fce4.pdf
 wwwroot\uploads\cv\6e1b53ce-a790-40fd-a8c7-f1b0debf8341.pdf
 wwwroot\uploads\cv\f6eb1711-e282-4599-989d-f7891256021e.pdf

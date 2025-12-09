@@ -1,5 +1,6 @@
 ﻿using cv.deltareco.com.Data;
 using cv.deltareco.com.Models;
+using cv.deltareco.com.ViewModels;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -55,35 +56,81 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
         }
 
         // ===================== CREATE ==========================
+        //[HttpGet]
+        //public IActionResult Create()
+        //{
+        //    ViewBag.CVs = _context.CandidateCVs.ToList();
+        //    return View();
+        //}
+
         [HttpGet]
         public IActionResult Create()
         {
-            ViewBag.CVs = _context.CandidateCVs.ToList();
-            return View();
+            return View(new CandidateCreateViewModel());
         }
 
         [HttpPost]
-        public async Task <IActionResult> Create(CandidateProfile model)
+        public async Task<IActionResult> Create(CandidateCreateViewModel model)
         {
-            var user = await _userManager.GetUserAsync(User);
-
             if (!ModelState.IsValid)
-            {
-                ViewBag.CVs = _context.CandidateCVs.ToList();
                 return View(model);
+
+            int cvId = 0;
+
+            // --------------------------
+            // 1️⃣ SAVE CV FIRST
+            // --------------------------
+            if (model.CVFile != null)
+            {
+                string folder = "uploads/cvs/";
+                string fileName = Guid.NewGuid() + Path.GetExtension(model.CVFile.FileName);
+                string fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", folder);
+
+                if (!Directory.Exists(fullPath))
+                    Directory.CreateDirectory(fullPath);
+
+                string filePath = Path.Combine(fullPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.CVFile.CopyToAsync(stream);
+                }
+
+                var uploadedCV = new CandidateCV
+                {
+                    FileName = model.CVFile.FileName,
+                    FilePath = "/" + folder + fileName,
+                    UploadedOn = DateTime.Now
+                };
+
+                _context.CandidateCVs.Add(uploadedCV);
+                await _context.SaveChangesAsync();
+
+                cvId = uploadedCV.Id; // GET SAVED CV ID
             }
 
-            _context.CandidateProfiles.Add(model);
-            _context.SaveChanges();
-//            await _log.LogAsync("CandidateProfile", "Create",
-//user.Id.ToString(),
-//null,
-//user,
-//User.Identity.Name
-//);
-            TempData["success"] = "Candidate Profile added successfully!";
+            // --------------------------
+            // 2️⃣ SAVE CandidateProfile
+            // --------------------------
+            var candidate = new CandidateProfile
+            {
+                CandidateName = model.CandidateName,
+                Email = model.Email,
+                Mobile = model.Mobile,
+                Education = model.Education,
+                Experience = model.Experience,
+                Skills = model.Skills,
+                CandidateCVId = cvId    // LINK CV ID HERE
+            };
+
+            _context.CandidateProfiles.Add(candidate);
+            await _context.SaveChangesAsync();
+            await _log.LogCreateAsync(candidate);
+        
+            TempData["Success"] = "Candidate created successfully!";
             return RedirectToAction("Index");
         }
+
         public IActionResult ExportCsv(DateTime? fromDate, DateTime? toDate)
         {
             var data = _context.CandidateProfiles
@@ -201,6 +248,21 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
                 CellValue = new CellValue(text ?? "")
             };
         }
+        [HttpPost]
+        public IActionResult BulkDelete(List<int> ids)
+        {
+            if (ids == null || ids.Count == 0)
+                return RedirectToAction("Index");
+
+            var profiles = _context.CandidateProfiles.Where(x => ids.Contains(x.Id)).ToList();
+
+            _context.CandidateProfiles.RemoveRange(profiles);
+
+            _context.SaveChanges();
+
+            TempData["Success"] = "Selected candidates deleted successfully!";
+            return RedirectToAction("Index");
+        }
 
         // ===================== EDIT ============================
         [HttpGet]
@@ -218,6 +280,7 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(int id, CandidateProfile model, IFormFile NewCV)
         {
             var user = await _userManager.GetUserAsync(User);
+            var oldData = await _context.CandidateProfiles.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
             var candidate = await _context.CandidateProfiles
                 .Include(x => x.CandidateCV)
@@ -280,18 +343,7 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
             }
 
             await _context.SaveChangesAsync();
-            await _log.LogAsync(
-      "CandidateProfile",
-      "Create",
-      user.Id.ToString(),
-      null,
-      new
-      {
-          UploadedBy = user.UserName,
-      },
-      user.UserName
-  );
-
+            await _log.LogUpdateAsync(oldData, model);
             return RedirectToAction("Index");
         }
 
@@ -330,17 +382,7 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
 
             _context.CandidateProfiles.Remove(profile);
             _context.SaveChanges();
-            await _log.LogAsync(
-      "CandidateProfile",
-      "Delete",
-      user.Id.ToString(),
-      null,
-      new
-      {
-          UploadedBy = user.UserName,
-      },
-      user.UserName
-  );
+            await _log.LogDeleteAsync(profile);
 
             TempData["success"] = "Profile deleted!";
             return RedirectToAction("Index");

@@ -1,137 +1,182 @@
 ﻿@model cv.deltareco.com.Models.CandidateProfile
+
 @{
     ViewData["Title"] = "Edit Candidate Profile";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
+<style>
+    .glass-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 35px;
+        border: none;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        transition: 0.3s;
+    }
+
+        .glass-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+        }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #0d6efd;
+        margin: 20px 0 10px 0;
+        border-left: 4px solid #0d6efd;
+        padding-left: 10px;
+    }
+
+    .file-upload-box {
+        background: #f1f5ff;
+        border: 2px dashed #0d6efd;
+        border-radius: 12px;
+        padding: 18px;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+        .file-upload-box:hover {
+            background: #e7efff;
+        }
+
+    .form-control, textarea {
+        border-radius: 10px !important;
+        padding: 10px 14px;
+    }
+
+    .btn-lg {
+        border-radius: 10px !important;
+    }
+</style>
+
 <div class="page-wrapper">
     <div class="content">
 
-        <div class="page-header">
-            <div class="row">
-                <div class="col">
-                    <h3 class="page-title text-primary fw-bold">
-                        <i class="fa fa-edit me-2"></i> Edit Candidate Profile
-                    </h3>
-                </div>
-            </div>
+        <div class="page-header d-flex justify-content-between align-items-center">
+            <h3 class="page-title text-primary fw-bold m-0">
+                <i class="fa fa-edit me-2"></i> Edit Candidate Profile
+            </h3>
+
+            <a asp-action="Index" class="btn btn-outline-primary">
+                <i class="fa fa-arrow-left me-1"></i> Back
+            </a>
         </div>
 
-        <div class="card shadow-sm border-0" style="border-radius:12px;">
-            <div class="card-body p-4">
+        <div class="glass-card mt-3">
 
-                <form asp-action="Edit" method="post" enctype="multipart/form-data">
-                    <input type="hidden" asp-for="Id" />
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                <input type="hidden" asp-for="Id" />
 
-                    <div class="row g-3">
+                <!-- CV Section -->
+                <div class="section-title">Candidate CV</div>
 
-                        <!-- Current CV -->
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">
-                                <i class="fa fa-file-alt me-1 text-primary"></i> Current CV
-                            </label>
+                <div class="row g-3">
 
-                            @if (Model.CandidateCV != null)
-                            {
-                                <p class="text-success fw-bold">
-                                    <i class="fa fa-file-pdf me-1"></i>
+                    <!-- Current CV -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fa fa-file-alt me-1 text-primary"></i> Current CV
+                        </label>
+
+                        @if (Model.CandidateCV != null)
+                        {
+                            <div class="p-3 border rounded shadow-sm">
+                                <p class="text-success fw-bold m-0">
+                                    <i class="fa fa-file me-1"></i>
                                     @Model.CandidateCV.FileName
                                 </p>
 
-                                <a href="@Model.CandidateCV.FilePath" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <a href="@Model.CandidateCV.FilePath" target="_blank"
+                                   class="btn btn-sm btn-outline-primary mt-2">
                                     <i class="fa fa-download me-1"></i> Download
                                 </a>
-                            }
-                            else
-                            {
-                                <p class="text-danger">No CV Uploaded</p>
-                            }
-                        </div>
-                        <!-- Upload New CV -->
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">
-                                <i class="fa fa-upload me-1 text-primary"></i> Upload New CV
-                            </label>
-
-                            <input type="file" name="NewCV" class="form-control" accept=".pdf,.doc,.docx" />
-
-                            <small class="text-muted">
-                                Allowed formats: PDF, DOC, DOCX
-                            </small>
-
-                           
-                        </div>
-
-
-                        <!-- Candidate Name -->
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">
-                                <i class="fa fa-user me-1 text-primary"></i> Name
-                            </label>
-                            <input asp-for="CandidateName" class="form-control" />
-                            <span asp-validation-for="CandidateName" class="text-danger"></span>
-                        </div>
-
-                        <!-- Email -->
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">
-                                <i class="fa fa-envelope me-1 text-primary"></i> Email
-                            </label>
-                            <input asp-for="Email" class="form-control" />
-                            <span asp-validation-for="Email" class="text-danger"></span>
-                        </div>
-
-                        <!-- Mobile -->
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">
-                                <i class="fa fa-phone me-1 text-primary"></i> Mobile
-                            </label>
-                            <input asp-for="Mobile" class="form-control" />
-                            <span asp-validation-for="Mobile" class="text-danger"></span>
-                        </div>
-
-                        <!-- Education -->
-                        <div class="col-md-12">
-                            <label class="form-label fw-semibold">
-                                <i class="fa fa-graduation-cap me-1 text-primary"></i> Education
-                            </label>
-                            <textarea asp-for="Education" class="form-control" rows="3"></textarea>
-                            <span asp-validation-for="Education" class="text-danger"></span>
-                        </div>
-
-                        <!-- Experience -->
-                        <div class="col-md-12">
-                            <label class="form-label fw-semibold">
-                                <i class="fa fa-briefcase me-1 text-primary"></i> Experience
-                            </label>
-                            <textarea asp-for="Experience" class="form-control" rows="3"></textarea>
-                            <span asp-validation-for="Experience" class="text-danger"></span>
-                        </div>
-
-                        <!-- Skills -->
-                        <div class="col-md-12">
-                            <label class="form-label fw-semibold">
-                                <i class="fa fa-lightbulb me-1 text-primary"></i> Skills
-                            </label>
-                            <textarea asp-for="Skills" class="form-control" rows="3"></textarea>
-                            <span asp-validation-for="Skills" class="text-danger"></span>
-                        </div>
-
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-danger fw-bold mt-2">No CV Uploaded</p>
+                        }
                     </div>
 
-                    <div class="mt-4 d-flex gap-3">
-                        <button type="submit" class="btn btn-primary px-4">
-                            <i class="fa fa-save me-1"></i> Update Profile
-                        </button>
+                    <!-- Upload New CV -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fa fa-upload me-1 text-primary"></i> Upload New CV
+                        </label>
 
-                        <a asp-action="Index" class="btn btn-secondary px-4">
-                            <i class="fa fa-times me-1"></i> Cancel
-                        </a>
+                        <label class="file-upload-box w-100">
+                            <i class="fa fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
+                            <p class="m-0 fw-semibold text-primary">Click to Upload New CV</p>
+                            <input type="file" name="NewCV" class="d-none" accept=".pdf,.doc,.docx" />
+                        </label>
+
+                        <small class="text-muted">Allowed formats: PDF, DOC, DOCX</small>
                     </div>
 
-                </form>
+                </div>
 
-            </div>
+                <!-- Personal Info -->
+                <div class="section-title">Personal Information</div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fa fa-user me-1 text-primary"></i> Name
+                        </label>
+                        <input asp-for="CandidateName" class="form-control shadow-sm" />
+                        <span asp-validation-for="CandidateName" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fa fa-envelope me-1 text-primary"></i> Email
+                        </label>
+                        <input asp-for="Email" class="form-control shadow-sm" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fa fa-phone me-1 text-primary"></i> Mobile
+                        </label>
+                        <input asp-for="Mobile" class="form-control shadow-sm" />
+                        <span asp-validation-for="Mobile" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Education -->
+                <div class="section-title">Education</div>
+                <textarea asp-for="Education" rows="3" class="form-control shadow-sm"></textarea>
+                <span asp-validation-for="Education" class="text-danger"></span>
+
+                <!-- Experience -->
+                <div class="section-title">Experience</div>
+                <textarea asp-for="Experience" rows="3" class="form-control shadow-sm"></textarea>
+                <span asp-validation-for="Experience" class="text-danger"></span>
+
+                <!-- Skills -->
+                <div class="section-title">Skills</div>
+                <textarea asp-for="Skills" rows="3" class="form-control shadow-sm"></textarea>
+                <span asp-validation-for="Skills" class="text-danger"></span>
+
+                <!-- Buttons -->
+                <div class="mt-4 d-flex gap-3">
+                    <button type="submit" class="btn btn-primary btn-lg px-4">
+                        <i class="fa fa-save me-2"></i> Update Profile
+                    </button>
+
+                    <a asp-action="Index" class="btn btn-secondary btn-lg px-4">
+                        <i class="fa fa-times me-2"></i> Cancel
+                    </a>
+                </div>
+
+            </form>
+
         </div>
 
     </div>
