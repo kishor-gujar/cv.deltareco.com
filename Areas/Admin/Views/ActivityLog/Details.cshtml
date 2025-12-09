@@ -1,0 +1,126 @@
+﻿@model ActivityLog
+
+@{
+    ViewData["Title"] = "Log Details";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="page-wrapper">
+    <div class="content">
+
+        <!-- Header -->
+        <div class="page-header d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="page-title text-primary fw-bold">
+                    <i class="fa fa-eye me-2"></i> Activity Log Details
+                </h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/Admin">Admin</a></li>
+                    <li class="breadcrumb-item"><a href="/Admin/ActivityLogs">Activity Logs</a></li>
+                    <li class="breadcrumb-item active">Details</li>
+                </ul>
+            </div>
+
+            <a asp-action="Index" class="btn btn-secondary shadow-sm">
+                <i class="fa fa-arrow-left me-1"></i> Back
+            </a>
+        </div>
+
+        <!-- Details Card -->
+        <div class="card shadow-lg rounded-4"
+             style="backdrop-filter: blur(12px); background: rgba(255,255,255,0.15);">
+
+            <div class="card-body p-4">
+
+                <!-- Info Row -->
+                <div class="row g-3 mb-4">
+
+                    <div class="col-md-3">
+                        <label class="fw-bold text-muted">Log ID</label>
+                        <div class="form-control bg-light">@Model.Id</div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="fw-bold text-muted">Table Name</label>
+                        <div class="form-control bg-light">@Model.TableName</div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="fw-bold text-muted">Record ID</label>
+                        <div class="form-control bg-light">@Model.RecordId</div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="fw-bold text-muted">Action</label>
+                        <div>
+                            @if (Model.ActionType == "Create")
+                            {
+                                <span class="badge bg-success px-3 py-2">Create</span>
+                            }
+                            else if (Model.ActionType == "Update")
+                            {
+                                <span class="badge bg-warning text-dark px-3 py-2">Update</span>
+                            }
+                            else if (Model.ActionType == "Delete")
+                            {
+                                <span class="badge bg-danger px-3 py-2">Delete</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary px-3 py-2">@Model.ActionType</span>
+                            }
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Performed Info -->
+                <div class="row g-3 mb-4">
+
+                    <div class="col-md-6">
+                        <label class="fw-bold text-muted">Performed By</label>
+                        <div class="form-control bg-light">@Model.PerformedBy</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="fw-bold text-muted">Performed At</label>
+                        <div class="form-control bg-light">
+                            @Model.PerformedAt.ToString("dd MMM yyyy, hh:mm tt")
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- JSON Data Section -->
+                <div class="mb-4">
+                    <h5 class="text-primary fw-bold mb-2">
+                        <i class="fa fa-database me-2"></i>Old Data
+                    </h5>
+                    <pre class="p-3 rounded-4 bg-dark text-white shadow-sm" 
+                         style="font-size:14px; white-space:pre-wrap;">
+@Model.OldValues
+                    </pre>
+                </div>
+
+                <div class="mb-4">
+                    <h5 class="text-primary fw-bold mb-2">
+                        <i class="fa fa-database me-2"></i>New Data
+                    </h5>
+                    <pre class="p-3 rounded-4 bg-dark text-white shadow-sm"
+                         style="font-size:14px; white-space:pre-wrap;">
+@Model.NewValues
+                    </pre>
+                </div>
+
+                <!-- Back Button -->
+                <div class="mt-4 text-end">
+                    <a asp-action="Index" class="btn btn-primary px-4 shadow-sm">
+                        <i class="fa fa-arrow-left me-1"></i> Back to Logs
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

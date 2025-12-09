@@ -14,6 +14,7 @@ namespace cv.deltareco.com.Data
      public DbSet<MyUser>MyUsers { get; set; }  
         public DbSet<CandidateCV> CandidateCVs { get; set; }
         public DbSet<CandidateProfile> CandidateProfiles { get; set; }
-        // ❌ Do NOT add DbSet<ApplicationUser> or DbSet<AppRole>
+        public DbSet<ActivityLog> ActivityLogs { get; set; }
+
     }
 }

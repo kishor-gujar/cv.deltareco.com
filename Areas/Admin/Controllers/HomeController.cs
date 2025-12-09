@@ -24,6 +24,11 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
+            var today = DateTime.Today;
+
+            var todaysCVCount = await _context.CandidateCVs
+                .Where(x => x.UploadedOn >= today)
+                .CountAsync();
 
             if (user == null)
                 return RedirectToAction("Login", "Account");
@@ -32,6 +37,7 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
                             .OrderByDescending(x => x.Id)
                             .Take(10) // last 10 entries only
                             .ToListAsync();
+           
             var cvs = await _context.CandidateCVs.OrderBy(x => x.UploadedOn).Take(10).ToListAsync();
             var vm = new HomeViewModel
             {
@@ -42,8 +48,19 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
                 TotalCandidateCVCounts = await _context.CandidateCVs.CountAsync(),
                 TotalCandidateCounts = await _context.CandidateProfiles.CountAsync(),
                 Profiles = candidatesprofile,
-                CandidateCVs = cvs
+                CandidateCVs = cvs,
+                RecentUploadedCVCounts =todaysCVCount,
+
             };
+            // Count per month for Profiles
+            vm.ProfileCounts = Enumerable.Range(1, 12)
+                .Select(m => _context.CandidateProfiles.Count(x => x.CreatedOn.Month == m))
+                .ToList();
+
+            // Count per month for CVs
+            vm.CVCounts = Enumerable.Range(1, 12)
+                .Select(m => _context.CandidateCVs.Count(x => x.UploadedOn.Month == m))
+                .ToList();
 
             return View(vm);
         }

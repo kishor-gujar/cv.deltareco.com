@@ -1,25 +1,52 @@
-﻿using cv.deltareco.com.Data;
+﻿using Aspose.Words; // For .doc files
+using cv.deltareco.com.Data;
 using cv.deltareco.com.Models;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using UglyToad.PdfPig; // For PDF
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using UglyToad.PdfPig; // For PDF
+
 namespace cv.deltareco.com.Areas.Admin.Controllers
+
 {
     [Area("Admin")]
     public class CVController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _env;
+        private readonly ActivityLogService _log;
 
-        public CVController(ApplicationDbContext context, IWebHostEnvironment env)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public CVController(ApplicationDbContext context, IWebHostEnvironment env, ActivityLogService log, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _env = env;
+            _log = log;
+            _userManager = userManager;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index(DateTime? fromDate, DateTime? toDate)
         {
-            var cvs = _context.CandidateCVs.AsNoTracking().ToList();
+
+            var query = _context.CandidateCVs
+                      .AsQueryable();
+
+            if (fromDate.HasValue)
+            {
+                query = query.Where(c => c.UploadedOn >= fromDate.Value.Date);
+            }
+
+            if (toDate.HasValue)
+            {
+                query = query.Where(c => c.UploadedOn <= toDate.Value.Date.AddDays(1).AddTicks(-1));
+            }
+            var cvs =await query.ToListAsync();
+            ViewData["FromDate"] = fromDate?.ToString("yyyy-MM-dd");
+            ViewData["ToDate"] = toDate?.ToString("yyyy-MM-dd");
             return View(cvs);
         }
         public IActionResult CandidateProfiles()
@@ -36,6 +63,7 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(List<IFormFile> CVFiles)
         {
+            var user = await _userManager.GetUserAsync(User);
             if (CVFiles == null || CVFiles.Count == 0)
             {
                 TempData["error"] = "Please select at least one file.";
@@ -78,6 +106,12 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
             }
 
             await _context.SaveChangesAsync();
+//            await _log.LogAsync( "CV","Create",
+//    user.Id.ToString(),
+//    null,
+//    user,
+//    User.Identity.Name
+//);
 
             TempData["success"] = "CV(s) uploaded successfully!";
             return RedirectToAction("Index");
@@ -95,6 +129,8 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(int id, string FileName)
         {
+            var user = await _userManager.GetUserAsync(User);
+
             var cv = await _context.CandidateCVs.FindAsync(id);
 
             if (cv == null)
@@ -131,7 +167,12 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
             _context.CandidateCVs.Update(cv);
 
             await _context.SaveChangesAsync();
-
+//            await _log.LogAsync("CV", "Edit",
+// user.Id.ToString(),
+// null,
+// user,
+// User.Identity.Name
+//);
             TempData["success"] = "CV updated successfully!";
             return RedirectToAction("Index");
         }
@@ -153,6 +194,8 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            var user = await _userManager.GetUserAsync(User);
+
             var cv = await _context.CandidateCVs.FindAsync(id);
 
             if (cv == null)
@@ -167,7 +210,12 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
             // Remove from DB
             _context.CandidateCVs.Remove(cv);
             await _context.SaveChangesAsync();
-
+//            await _log.LogAsync("CV", "Delete",
+//user.Id.ToString(),
+//null,
+//user,
+//User.Identity.Name
+//);
             TempData["success"] = "CV deleted successfully!";
             return RedirectToAction("Index");
         }
@@ -175,26 +223,48 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Extract(int id)
         {
+            var user = await _userManager.GetUserAsync(User);
+
+            // Fetch CV Record
             var cv = await _context.CandidateCVs.FirstOrDefaultAsync(x => x.Id == id);
             if (cv == null)
             {
-                TempData["error"] = "CV not found.";
+                TempData["error"] = "CV record not found.";
                 return RedirectToAction("Index");
             }
 
-            string filePath = Path.Combine(_env.WebRootPath, cv.FilePath.TrimStart('/'));
-
-            string text = "";
-
-            using (PdfDocument document = PdfDocument.Open(filePath))
+            // File path
+            string fullPath = Path.Combine(_env.WebRootPath, cv.FilePath.TrimStart('/'));
+            if (!System.IO.File.Exists(fullPath))
             {
-                foreach (var page in document.GetPages())
-                {
-                    text += page.Text;
-                }
+                TempData["error"] = "File not found on server.";
+                return RedirectToAction("Index");
             }
 
-            // Extract fields using Regex
+            string extension = Path.GetExtension(fullPath).ToLower();
+            string text = "";
+
+            // Detect and extract
+            switch (extension)
+            {
+                case ".pdf":
+                    text = ExtractTextFromPdf(fullPath);
+                    break;
+
+                case ".docx":
+                    text = ExtractTextFromDocx(fullPath);
+                    break;
+
+                case ".doc":
+                    text = ExtractTextFromDoc(fullPath);
+                    break;
+
+                default:
+                    TempData["error"] = "Unsupported file format!";
+                    return RedirectToAction("Index");
+            }
+
+            // Extract data
             string name = ExtractName(text);
             string email = ExtractEmail(text);
             string mobile = ExtractMobile(text);
@@ -202,7 +272,7 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
             string education = ExtractEducation(text);
             string experience = ExtractExperience(text);
 
-            // Save in CandidateProfile table
+            // Save Candidate Profile
             var profile = new CandidateProfile
             {
                 CandidateName = name,
@@ -211,15 +281,53 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
                 Education = education,
                 Experience = experience,
                 Skills = skills,
-                CandidateCVId = cv.Id
+                CandidateCVId = cv.Id   // IMPORTANT: Now FK will NOT fail
             };
 
             _context.CandidateProfiles.Add(profile);
             await _context.SaveChangesAsync();
-
-            TempData["success"] = "Candidate details extracted and saved!";
+//            await _log.LogAsync("CV", "Extracted",
+//user.Id.ToString(),
+//null,
+//user,
+//User.Identity.Name
+//);
+            TempData["success"] = "Candidate details extracted successfully!";
             return RedirectToAction("Index");
         }
+
+        private string ExtractTextFromDoc(string path)
+        {
+        var doc = new Aspose.Words.Document(path);
+            return doc.GetText();
+        }
+        private string ExtractTextFromDocx(string path)
+        {
+            using (var wordDoc = DocumentFormat.OpenXml.Packaging.WordprocessingDocument.Open(path, false))
+            {
+                DocumentFormat.OpenXml.Wordprocessing.Body body =
+                    wordDoc.MainDocumentPart.Document.Body;
+
+                return body.InnerText;
+            }
+        }
+
+        private string ExtractTextFromPdf(string path)
+        {
+            string text = "";
+
+            using (var doc = UglyToad.PdfPig.PdfDocument.Open(path))
+            {
+                foreach (var page in doc.GetPages())
+                {
+                    text += page.Text + "\n";
+                }
+            }
+
+            return text;
+        }
+
+
         private string ExtractEmail(string text)
         {
             var match = Regex.Match(text, @"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}");

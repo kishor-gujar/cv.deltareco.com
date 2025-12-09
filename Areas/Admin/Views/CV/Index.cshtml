@@ -3,36 +3,59 @@
 
 @{
     ViewData["Title"] = "CV List";
-Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
-
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
+
 <div class="page-wrapper">
     <div class="content">
 
-<div class="page-header">
-    <div class="row">
-        <div class="col">
-            <h3 class="page-title">Uploaded CV List</h3>
-            <ul class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/Admin">Admin</a></li>
-                <li class="breadcrumb-item active">CV List</li>
-            </ul>
+        <!-- Header -->
+        <div class="page-header d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="page-title text-primary fw-bold">Uploaded CV List</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/Admin">Admin</a></li>
+                    <li class="breadcrumb-item active">CV List</li>
+                </ul>
+            </div>
+            <div>
+                <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#uploadCVModal">
+                    <i class="fa fa-upload me-1"></i> Upload New CV
+                </button>
+            </div>
         </div>
-        <div class="col-auto">
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadCVModal">
-                        <i class="fa fa-upload me-1"></i> Upload New CV
-                    </button>
+        <form method="get" class="row g-3 mb-4 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">From Date</label>
+                <input type="date" name="fromDate" class="form-control"
+                       value="@ViewData["FromDate"]" />
+            </div>
 
-        </div>
-    </div>
-</div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">To Date</label>
+                <input type="date" name="toDate" class="form-control"
+                       value="@ViewData["ToDate"]" />
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fa fa-filter me-1"></i> Filter
+                </button>
+            </div>
+
+            <div class="col-md-2">
+                <button type="button" class="btn btn-secondary w-100" onclick="clearFilters()">
+                    <i class="fa fa-times me-1"></i> Clear Filter
+                </button>
+
+            </div>
+        </form>
         <!-- Upload CV Modal -->
         <div class="modal fade" id="uploadCVModal" tabindex="-1" aria-labelledby="uploadCVModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-md">
-                <div class="modal-content">
-
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="uploadCVModalLabel">Upload CV (PDF / DOC / DOCX)</h5>
+                <div class="modal-content rounded-4 shadow-lg" style="backdrop-filter: blur(12px); background: rgba(255,255,255,0.15);">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title fw-bold text-dark" id="uploadCVModalLabel">Upload CV (PDF / DOC / DOCX)</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
@@ -40,110 +63,143 @@ Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
                         <div class="modal-body">
 
                             <div class="mb-3">
-                                <label class="form-label">Select CV File(s)</label>
-                                <input type="file" name="CVFiles" id="cvInput" class="form-control" multiple accept=".pdf,.doc,.docx" />
+                                <label class="form-label fw-semibold text-dark">Select CV File(s)</label>
+                                <input type="file" name="CVFiles" id="cvInput" class="form-control shadow-sm" multiple accept=".pdf,.doc,.docx" />
                                 <small class="text-muted">Max 5 MB per file</small>
                                 <div id="fileError" class="text-danger small mt-1"></div>
                             </div>
 
                         </div>
-
-                        <div class="modal-footer">
-                            <button type="submit" id="submitBtn" class="btn btn-success">Upload</button>
+                        <div class="modal-footer border-0">
+                            <button type="submit" id="submitBtn" class="btn btn-success shadow-sm">
+                                <i class="fa fa-upload me-1"></i> Upload
+                            </button>
                         </div>
                     </form>
-
                 </div>
             </div>
         </div>
 
-<div class="card shadow-sm">
-    <div class="card-body">
+        <!-- CV Table -->
+        <div class="card shadow-lg rounded-4" style="backdrop-filter: blur(12px); background: rgba(255,255,255,0.15);">
+            <div class="card-body p-4">
 
-
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>File Name</th>
-                        <th>Uploaded On</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    @if (!Model.Any())
-                    {
-                        <tr>
-                            <td colspan="4" class="text-center text-muted">
-                                No CVs uploaded yet.
-                            </td>
-                        </tr>
-                    }
-                    else
-                    {
-                        int i = 1;
-                        foreach (var item in Model)
-                        {
+                <div class="table-responsive">
+                    <table id="cvTable" class="table table-striped table-hover table-bordered align-middle">
+                        <thead class="table-dark">
                             <tr>
-                                <td>@i</td>
-                                <td>@item.FileName</td>
-                                <td>@item.UploadedOn.ToString("dd MMM yyyy, hh:mm tt")</td>
-
-                                <td>
-                                    <a href="@item.FilePath" target="_blank" class="btn btn-sm btn-info">
-                                        <i class="fa fa-eye"></i> View
-                                    </a>
-                                            <a asp-area="Admin"
-                                               asp-controller="CV"
-                                               asp-action="Extract"
-                                               asp-route-id="@item.Id"
-                                               class="btn btn-sm btn-primary">
-                                                Extract
-                                            </a>
-
-                                    <a href="@item.FilePath" download class="btn btn-sm btn-success">
-                                        <i class="fa fa-download"></i> Download
-                                    </a>
-
-                                    <a asp-area="Admin"
-                                       asp-controller="CV"
-                                       asp-action="Delete"
-                                       asp-route-id="@item.Id"
-                                     >
-
-                                        <i class="fa fa-trash"></i> Delete
-                                    </a>
-                                </td>
+                                <th>#</th>
+                                <th>File Name</th>
+                                <th>Uploaded On</th>
+                                <th>Actions</th>
                             </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Any())
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No CVs uploaded yet.</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                int i = 1;
+                                foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@i</td>
+                                        <td>@item.FileName</td>
+                                        <td>@item.UploadedOn.ToString("dd MMM yyyy, hh:mm tt")</td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                    <i class="fa fa-cog"></i> 
+                                                </button>
 
-                            i++;
-                        }
-                    }
-                </tbody>
-            </table>
+                                                <ul class="dropdown-menu shadow-sm" style="font-size:12px;">
+                                                    <li>
+                                                        <a class="dropdown-item" href="@item.FilePath" target="_blank">
+                                                            <i class="fa fa-eye me-2"></i> View
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="Admin" asp-controller="CV" asp-action="Extract" asp-route-id="@item.Id">
+                                                            <i class="fa fa-magic me-2"></i> Extract
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="@item.FilePath" download>
+                                                            <i class="fa fa-download me-2"></i> Download
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item text-danger" asp-area="Admin" asp-controller="CV" asp-action="Delete" asp-route-id="@item.Id"
+                                                           onclick="return confirm('Are you sure you want to delete this CV?');">
+                                                            <i class="fa fa-trash me-2"></i> Delete
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+
+                                    </tr>
+                                    i++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
         </div>
 
     </div>
 </div>
-@section Scripts{
-            <script>
-                document.getElementById("cvInput").addEventListener("change", function () {
 
-                    const maxSize = 5 * 1024 * 1024; // 5 MB
-                    const files = this.files;
-                    let error = "";
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
-                    for (let i = 0; i < files.length; i++) {
-                        if (files[i].size > maxSize) {
-                            error = "Each file must be 5 MB or smaller.";
-                        }
-                    }
+    <script>
+        $(document).ready(function () {
+            $('#cvTable').DataTable({
+                 paging: true,
+        lengthChange: true,
+        searching: true,
+        ordering: true,
+        info: true,
+        autoWidth: false,
+        order: [[2, "desc"]], // sort by UploadedOn descending
+        scrollY: "400px",      // vertical scroll height
+        scrollX: true,         // horizontal scroll if needed
+        scrollCollapse: true,  // shrink scroll area if fewer rows
+        responsive: true       // enable responsive
+            });
+        });
 
-                    document.getElementById("fileError").innerText = error;
-                    document.getElementById("submitBtn").disabled = error !== "";
-                });
-            </script>
+        // CV file size validation
+        document.getElementById("cvInput").addEventListener("change", function () {
+            const maxSize = 5 * 1024 * 1024; // 5 MB
+            const files = this.files;
+            let error = "";
+            for (let i = 0; i < files.length; i++) {
+                if (files[i].size > maxSize) {
+                    error = "Each file must be 5 MB or smaller.";
+                }
+            }
+            document.getElementById("fileError").innerText = error;
+            document.getElementById("submitBtn").disabled = error !== "";
+        });
+    </script>
+    <script>
+        function clearFilters() {
+            document.querySelector('input[name="fromDate"]').value = "";
+            document.querySelector('input[name="toDate"]').value = "";
 
+            // resubmit form automatically
+            document.querySelector('form').submit();
+        }
+    </script>
 }

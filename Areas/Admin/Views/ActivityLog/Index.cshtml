@@ -1,0 +1,158 @@
+﻿@model IEnumerable<ActivityLog>
+
+@{
+    ViewData["Title"] = "Activity Logs";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="page-wrapper">
+    <div class="content">
+
+        <!-- Header -->
+        <div class="page-header d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="page-title text-primary fw-bold">
+                    <i class="fa fa-history me-2"></i> Activity Logs
+                </h3>
+
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/Admin">Admin</a></li>
+                    <li class="breadcrumb-item active">Activity Logs</li>
+                </ul>
+            </div>
+        </div>
+
+      @*   <!-- Optional Filters -->
+        <form method="get" class="row g-3 mb-4 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">From Date</label>
+                <input type="date" name="fromDate" class="form-control"
+                       value="@ViewData["FromDate"]" />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">To Date</label>
+                <input type="date" name="toDate" class="form-control"
+                       value="@ViewData["ToDate"]" />
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fa fa-filter me-1"></i> Filter
+                </button>
+            </div>
+
+            <div class="col-md-2">
+                <button type="button" class="btn btn-secondary w-100" onclick="clearFilters()">
+                    <i class="fa fa-times me-1"></i> Clear
+                </button>
+            </div>
+        </form> *@
+
+        <!-- Activity Log Table -->
+        <div class="card shadow-lg rounded-4"
+             style="backdrop-filter: blur(12px); background: rgba(255,255,255,0.15);">
+            <div class="card-body p-4">
+
+                <div class="table-responsive">
+                    <table id="logTable" class="table table-striped table-hover table-bordered align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Table</th>
+                                <th>Action</th>
+                                <th>Record ID</th>
+                                <th>Performed By</th>
+                                <th>Date</th>
+                                <th>View</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Any())
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">No activity logs found.</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var log in Model)
+                                {
+                                    <tr>
+                                        <td>@log.Id</td>
+                                        <td>@log.TableName</td>
+
+                                        <td>
+                                            @if (log.ActionType == "Create")
+                                            {
+                                                <span class="badge bg-success">Create</span>
+                                            }
+                                            else if (log.ActionType == "Update")
+                                            {
+                                                <span class="badge bg-warning text-dark">Update</span>
+                                            }
+                                            else if (log.ActionType == "Delete")
+                                            {
+                                                <span class="badge bg-danger">Delete</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">@log.ActionType</span>
+                                            }
+                                        </td>
+
+                                        <td>@log.RecordId</td>
+                                        <td>@log.PerformedBy</td>
+                                        <td>@log.PerformedAt.ToString("dd MMM yyyy, hh:mm tt")</td>
+
+                                        <td>
+                                            <a asp-action="Details" asp-route-id="@log.Id"
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fa fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet"
+          href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#logTable').DataTable({
+                paging: true,
+                lengthChange: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                autoWidth: false,
+                order: [[5, "desc"]],
+                scrollY: "400px",
+                scrollX: true,
+                scrollCollapse: true,
+                responsive: true
+            });
+        });
+
+        function clearFilters() {
+            document.querySelector('input[name="fromDate"]').value = "";
+            document.querySelector('input[name="toDate"]').value = "";
+            document.querySelector('form').submit();
+        }
+    </script>
+}

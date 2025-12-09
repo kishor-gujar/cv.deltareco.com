@@ -1,6 +1,6 @@
 ﻿namespace cv.deltareco.com.Models
 {
-    public class CandidateProfile
+    public class CandidateProfile 
     {
         public int Id { get; set; }
 
@@ -13,6 +13,7 @@
         public string Education { get; set; }
         public string Experience { get; set; }
         public string Skills { get; set; }
+        public DateTime CreatedOn { get; set; } = DateTime.Now; 
     }
 
 }

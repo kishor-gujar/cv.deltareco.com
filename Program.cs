@@ -22,6 +22,7 @@ builder.Services.AddIdentity<ApplicationUser, AppRole>(options =>
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddScoped<ActivityLogService>();
 
 // Add services
 builder.Services.AddControllersWithViews()

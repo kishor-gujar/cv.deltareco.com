@@ -1,0 +1,110 @@
+﻿@model cv.deltareco.com.Areas.Admin.ViewModels.EditUserViewModel
+@{
+    ViewData["Title"] = "Edit User";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="page-wrapper">
+    <div class="content">
+
+        <div class="page-header">
+            <h3 class="page-title text-primary fw-bold">
+                <i class="fa fa-user-edit me-2"></i> Edit User
+            </h3>
+        </div>
+
+        <div class="card shadow-sm border-0" style="border-radius:12px;">
+            <div class="card-body p-4">
+
+                <form method="post" asp-action="Edit">
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="row g-3">
+
+                        <!-- Full Name -->
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label fw-semibold"></label>
+                            <input asp-for="FullName" class="form-control" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label fw-semibold"></label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label fw-semibold"></label>
+                            <input asp-for="PhoneNumber" class="form-control" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <!-- New Password -->
+                        <div class="col-md-6 position-relative">
+                            <label asp-for="NewPassword" class="form-label fw-semibold"></label>
+                            <input asp-for="NewPassword" class="form-control" placeholder="New Password" id="PasswordField" />
+                            <span asp-validation-for="NewPassword" class="text-danger"></span>
+
+                            <span class="position-absolute top-50 end-0 translate-middle-y pe-3" style="cursor:pointer;margin-top: 14px;" onclick="togglePassword('PasswordField', 'togglePasswordIcon')">
+                                <i id="togglePasswordIcon" class="fa fa-eye"></i>
+                            </span>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="col-md-6 position-relative">
+                            <label asp-for="ConfirmPassword" class="form-label fw-semibold"></label>
+                            <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm Password" id="ConfirmPasswordField" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+
+                            <span class="position-absolute top-50 end-0 translate-middle-y pe-3" style="cursor:pointer;margin-top: 14px;" onclick="togglePassword('ConfirmPasswordField', 'toggleConfirmPasswordIcon')">
+                                <i id="toggleConfirmPasswordIcon" class="fa fa-eye"></i>
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <div class="mt-4 d-flex gap-3">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fa fa-save me-1"></i> Save Changes
+                        </button>
+
+                        <a asp-action="Index" class="btn btn-secondary px-4">
+                            <i class="fa fa-times me-1"></i> Cancel
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        function togglePassword(fieldId, iconId) {
+            var input = document.getElementById(fieldId);
+            var icon = document.getElementById(iconId);
+
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js"></script>
+}

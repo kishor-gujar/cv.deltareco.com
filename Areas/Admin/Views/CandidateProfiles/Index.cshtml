@@ -8,56 +8,166 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css" />
 
-<div class="page-wrapper">
-    <div class="content">
+<style>
+    /* Force full responsiveness */
+    .dataTables_wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
 
-        <h2 class="mb-3">Candidate Profiles</h2>
+    table.dataTable {
+        width: 100% !important;
+    }
+</style>
 
-        <a asp-action="Create" class="btn btn-success mb-3">+ Add New Candidate</a>
+<div class="page-wrapper" style="transform:none;">
+    <div class="content" style="transform:none;">
+        <!-- Header -->
+        <div class="page-header d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="mb-3">Manage Candidates</h3>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/Admin">Admin</a></li>
+                    <li class="breadcrumb-item active">Candidate's List</li>
+                </ul>
+            </div>
 
-        <div class="table-responsive">
-            <table id="candidatesTable" class="table table-striped table-bordered nowrap" style="width:100%">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Mobile</th>
-                        <th>CV File</th>
-                        <th style="width: 160px;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var p in Model)
-                    {
-                        <tr>
-                            <td>@p.CandidateName</td>
-                            <td>@p.Email</td>
-                            <td>@p.Mobile</td>
-                            <td>
-                                @if (p.CandidateCV != null)
-                                {
-                                    <a href="@p.CandidateCV.FilePath" class="btn btn-sm btn-primary" target="_blank">
-                                        View CV
-                                    </a>
-                                }
-                                else
-                                {
-                                    <span class="text-danger">No File</span>
-                                }
-                            </td>
-                            <td>
-                                <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-warning btn-sm">Edit</a>
-                                <a asp-action="Details" asp-route-id="@p.Id" class="btn btn-info btn-sm">Details</a>
-                                <a asp-action="Delete" asp-route-id="@p.Id" class="btn btn-danger btn-sm">Delete</a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+            <div class="d-flex gap-2">
+
+                <a asp-area="Admin" asp-controller="CandidateProfiles" asp-action="Create"
+                   class="btn btn-outline-primary">
+                    <i class="fa fa-user-plus me-1"></i> Add New Candidate
+                </a>
+
+                <a asp-area="Admin" asp-controller="CandidateProfiles" asp-action="ExportCsv"
+                   asp-route-fromDate="@ViewData["FromDate"]"
+                   asp-route-toDate="@ViewData["ToDate"]"
+                   class="btn btn-outline-primary">
+                    <i class="fa fa-file-csv me-1"></i> Export CSV
+                </a>
+
+                <a asp-area="Admin" asp-controller="CandidateProfiles" asp-action="ExportExcel"
+                   asp-route-fromDate="@ViewData["FromDate"]"
+                   asp-route-toDate="@ViewData["ToDate"]"
+                   class="btn btn-outline-success">
+                    <i class="fa fa-file-excel me-1"></i> Export Excel
+                </a>
+
+            </div>
+        </div>
+
+        <form method="get" class="row g-3 mb-4 align-items-end">
+            <div class="col-md-2">
+                <label class="form-label fw-semibold">From Date</label>
+                <input type="date" name="fromDate" class="form-control"
+                       value="@ViewData["FromDate"]" />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label fw-semibold">To Date</label>
+                <input type="date" name="toDate" class="form-control"
+                       value="@ViewData["ToDate"]" />
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fa fa-filter me-1"></i> Filter
+                </button>
+            </div>
+
+            <div class="col-md-2">
+                <button type="button" class="btn btn-secondary w-100" onclick="clearFilters()">
+                    <i class="fa fa-times me-1"></i> Clear Filter
+                </button>
+            </div>
+
+        </form>
+
+        <!-- CV Table -->
+        <div class="card shadow-lg rounded-4" style="backdrop-filter: blur(12px); background: rgba(255,255,255,0.15);">
+            <div class="card-body p-4">
+
+                <div class="table-responsive">
+                    <table id="candidatesTable"
+                           class="table table-striped table-bordered dt-responsive nowrap w-100">
+
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Mobile</th>
+                                <th>Experience</th>
+                                <th>Skills</th>
+                                <th>CV File</th>
+                                <th style="width: 160px;">Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var p in Model)
+                            {
+                                <tr>
+                                    <td>@p.CandidateName</td>
+                                    <td>@p.Email</td>
+                                    <td>@p.Mobile</td>
+                                    <td>@p.Experience</td>
+                                    <td>@p.Skills</td>
+                                    <td>
+                                        @if (p.CandidateCV != null)
+                                        {
+                                            <a href="@p.CandidateCV.FilePath" class="btn btn-sm btn-primary" target="_blank">
+                                                View CV
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-danger">No File</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                <i class="fa fa-cog me-1"></i>
+                                            </button>
+
+                                            <ul class="dropdown-menu shadow-sm" style="font-size:12px;">
+                                                <li>
+                                                    <a class="dropdown-item" asp-action="Edit" asp-route-id="@p.Id">
+                                                        <i class="fa fa-edit me-2"></i> Edit
+                                                    </a>
+                                                </li>
+
+                                                <li>
+                                                    <a class="dropdown-item" asp-action="Details" asp-route-id="@p.Id">
+                                                        <i class="fa fa-info-circle me-2"></i> Details
+                                                    </a>
+                                                </li>
+
+                                                <li>
+                                                    <a class="dropdown-item text-danger"
+                                                       asp-action="Delete"
+                                                       asp-route-id="@p.Id"
+                                                       onclick="return confirm('Are you sure you want to delete this candidate?');">
+                                                        <i class="fa fa-trash me-2"></i> Delete
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
         </div>
 
     </div>
 </div>
+
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
@@ -75,4 +185,10 @@
             }
         });
     });
+
+    function clearFilters() {
+        document.querySelector('input[name="fromDate"]').value = "";
+        document.querySelector('input[name="toDate"]').value = "";
+        document.querySelector('form').submit();
+    }
 </script>

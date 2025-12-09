@@ -3,6 +3,7 @@
     ViewData["Title"] = "Edit Candidate Profile";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
+
 <div class="page-wrapper">
     <div class="content">
 
@@ -12,16 +13,11 @@
                     <h3 class="page-title text-primary fw-bold">
                         <i class="fa fa-edit me-2"></i> Edit Candidate Profile
                     </h3>
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="/Admin">Admin</a></li>
-                        <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="CandidateProfile" asp-action="Index">Candidate Profiles</a></li>
-                        <li class="breadcrumb-item active">Edit Profile</li>
-                    </ul>
                 </div>
             </div>
         </div>
 
-        <div class="card shadow-sm border-0" style="border-radius: 12px;">
+        <div class="card shadow-sm border-0" style="border-radius:12px;">
             <div class="card-body p-4">
 
                 <form asp-action="Edit" method="post" enctype="multipart/form-data">
@@ -29,7 +25,7 @@
 
                     <div class="row g-3">
 
-                        <!-- Old CV -->
+                        <!-- Current CV -->
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">
                                 <i class="fa fa-file-alt me-1 text-primary"></i> Current CV
@@ -38,29 +34,42 @@
                             @if (Model.CandidateCV != null)
                             {
                                 <p class="text-success fw-bold">
-                                    <i class="fa fa-file-pdf me-1"></i> @Model.CandidateCV.FileName
+                                    <i class="fa fa-file-pdf me-1"></i>
+                                    @Model.CandidateCV.FileName
                                 </p>
+
+                                <a href="@Model.CandidateCV.FilePath" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class="fa fa-download me-1"></i> Download
+                                </a>
                             }
                             else
                             {
                                 <p class="text-danger">No CV Uploaded</p>
                             }
                         </div>
-
                         <!-- Upload New CV -->
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">
-                                <i class="fa fa-upload me-1 text-primary"></i> Replace CV (optional)
+                                <i class="fa fa-upload me-1 text-primary"></i> Upload New CV
                             </label>
-                            <input type="file" name="NewCV" class="form-control" />
+
+                            <input type="file" name="NewCV" class="form-control" accept=".pdf,.doc,.docx" />
+
+                            <small class="text-muted">
+                                Allowed formats: PDF, DOC, DOCX
+                            </small>
+
+                           
                         </div>
 
-                        <!-- Name -->
+
+                        <!-- Candidate Name -->
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">
-                                <i class="fa fa-user me-1 text-primary"></i> Candidate Name
+                                <i class="fa fa-user me-1 text-primary"></i> Name
                             </label>
                             <input asp-for="CandidateName" class="form-control" />
+                            <span asp-validation-for="CandidateName" class="text-danger"></span>
                         </div>
 
                         <!-- Email -->
@@ -69,6 +78,7 @@
                                 <i class="fa fa-envelope me-1 text-primary"></i> Email
                             </label>
                             <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
 
                         <!-- Mobile -->
@@ -77,6 +87,7 @@
                                 <i class="fa fa-phone me-1 text-primary"></i> Mobile
                             </label>
                             <input asp-for="Mobile" class="form-control" />
+                            <span asp-validation-for="Mobile" class="text-danger"></span>
                         </div>
 
                         <!-- Education -->
@@ -85,6 +96,7 @@
                                 <i class="fa fa-graduation-cap me-1 text-primary"></i> Education
                             </label>
                             <textarea asp-for="Education" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Education" class="text-danger"></span>
                         </div>
 
                         <!-- Experience -->
@@ -93,6 +105,7 @@
                                 <i class="fa fa-briefcase me-1 text-primary"></i> Experience
                             </label>
                             <textarea asp-for="Experience" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Experience" class="text-danger"></span>
                         </div>
 
                         <!-- Skills -->
@@ -101,6 +114,7 @@
                                 <i class="fa fa-lightbulb me-1 text-primary"></i> Skills
                             </label>
                             <textarea asp-for="Skills" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Skills" class="text-danger"></span>
                         </div>
 
                     </div>
@@ -116,8 +130,13 @@
                     </div>
 
                 </form>
+
             </div>
         </div>
 
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

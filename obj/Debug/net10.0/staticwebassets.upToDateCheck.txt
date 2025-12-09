@@ -11601,8 +11601,11 @@ wwwroot\assets\scss\vendors\_datatables.scss
 wwwroot\assets\scss\vendors\_rangepicker-plugin.scss
 wwwroot\assets\scss\vendors\_select2.scss
 wwwroot\css\site.css
-wwwroot\CVs\GST Invoice No. BLH-2025-0903 (7).pdf
-wwwroot\CVs\GST Invoice No. BLH-2025-0903 (8).pdf
+wwwroot\CVs\0f3091f4-8336-4ddf-940c-42cce4560af9.pdf
+wwwroot\CVs\a0e73b82-922a-4c31-ac0e-d8a2dadd9656.pdf
+wwwroot\CVs\Dummyresume.docx
+wwwroot\CVs\Provisional_Letter_Abhi_Support_Team.pdf
+wwwroot\CVs\Resume.docx
 wwwroot\favicon.ico
 wwwroot\js\site.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
@@ -11667,7 +11670,6 @@ wwwroot\lib\jquery\dist\jquery.slim.min.map
 wwwroot\lib\jquery\LICENSE.txt
 wwwroot\uploads\cv\1fb36a4b-48ba-4e29-9339-ee3edd13fce4.pdf
 wwwroot\uploads\cv\6e1b53ce-a790-40fd-a8c7-f1b0debf8341.pdf
-wwwroot\uploads\cv\75aa7e1c-03c6-4232-b1fa-81be12267b6f.pdf
 wwwroot\uploads\cv\f6eb1711-e282-4599-989d-f7891256021e.pdf
 C:\FossTechUzon\cv.deltareco.com\wwwroot\css\site.css
 C:\FossTechUzon\cv.deltareco.com\wwwroot\favicon.ico
