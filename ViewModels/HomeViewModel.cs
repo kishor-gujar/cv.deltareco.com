@@ -18,6 +18,9 @@ namespace cv.deltareco.com.ViewModels
         public List<ApplicationUser> User { get; set; }
     public List<CandidateCV> CandidateCVs { get; set; }
         public List<ActivityLog> ActivityLogs { get; set; }
-}
+
+        public DateTime FromDate { get; set; }
+        public DateTime ToDate { get; set; }
+    }
 
 }

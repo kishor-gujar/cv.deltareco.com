@@ -9,8 +9,14 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css" />
 
 <style>
-    .dataTables_wrapper { width: 100%; overflow-x: auto; }
-    table.dataTable { width: 100% !important; }
+    .dataTables_wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    table.dataTable {
+        width: 100% !important;
+    }
 </style>
 
 <div class="page-wrapper" style="transform:none;">
@@ -28,35 +34,34 @@
 
             <div class="d-flex gap-2">
                 <a asp-area="Admin" asp-controller="CandidateProfiles" asp-action="Create"
-                   class="btn btn-outline-primary">
+                   class="btn btn-primary shadow-sm">
                     <i class="fa fa-user-plus me-1"></i> Add New Candidate
                 </a>
 
-                <!-- Bulk Delete Button -->
-                <button type="button" class="btn btn-outline-danger" onclick="submitBulkDelete()">
+                <button type="button" class="btn btn-danger me-2" onclick="submitBulkDelete()">
                     <i class="fa fa-trash"></i> Bulk Delete
                 </button>
 
-                
                 <a asp-area="Admin" asp-controller="CandidateProfiles" asp-action="ExportCsv"
                    asp-route-fromDate="@ViewData["FromDate"]"
                    asp-route-toDate="@ViewData["ToDate"]"
-                   class="btn btn-outline-primary">
+                   class="btn btn-warning me-2">
                     <i class="fa fa-file-csv me-1"></i> Export CSV
                 </a>
 
                 <a asp-area="Admin" asp-controller="CandidateProfiles" asp-action="ExportExcel"
                    asp-route-fromDate="@ViewData["FromDate"]"
                    asp-route-toDate="@ViewData["ToDate"]"
-                   class="btn btn-outline-success">
+                   class="btn btn-success shadow-sm">
                     <i class="fa fa-file-excel me-1"></i> Export Excel
                 </a>
-
             </div>
         </div>
-
+        <div class="card shadow-lg rounded-4" style="backdrop-filter: blur(12px); background: rgba(255,255,255,0.15);">
+            <div class="card-body p-4">
         <!-- Filters -->
         <form method="get" class="row g-3 mb-4 align-items-end">
+
             <div class="col-md-2">
                 <label class="form-label fw-semibold">From Date</label>
                 <input type="date" name="fromDate" class="form-control"
@@ -69,20 +74,38 @@
                        value="@ViewData["ToDate"]" />
             </div>
 
+        
+
+            <!-- Three Search Boxes Aligned in Row -->
+            <div class="col-md-4 d-flex gap-2 mt-4">
+
+                <input type="text" id="expSearch" class="form-control"
+                       placeholder="Experience" />
+
+                <input type="text" id="skillSearch" class="form-control"
+                       placeholder="Skills" />
+
+                <input type="text" id="eduSearch" class="form-control"
+                       placeholder="Education" />
+            </div>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">
+                <button type="submit" class="btn btn-primary w-100 mt-4">
                     <i class="fa fa-filter me-1"></i> Filter
                 </button>
             </div>
 
             <div class="col-md-2">
-                <button type="button" class="btn btn-secondary w-100" onclick="clearFilters()">
-                    <i class="fa fa-times me-1"></i> Clear Filter
+                <button type="button" class="btn btn-secondary w-100 mt-4" onclick="clearFilters()">
+                    <i class="fa fa-times me-1"></i> Clear
                 </button>
             </div>
         </form>
 
-        <!-- Table + Bulk Delete Form -->
+        </div>
+        </div>
+       
+
+        <!-- Table + Bulk Delete -->
         <form id="bulkDeleteForm" method="post" asp-action="BulkDelete" asp-controller="CandidateProfiles" asp-area="Admin">
             <div class="card shadow-lg rounded-4" style="backdrop-filter: blur(12px); background: rgba(255,255,255,0.15);">
                 <div class="card-body p-4">
@@ -99,6 +122,7 @@
                                     <th>Mobile</th>
                                     <th>Experience</th>
                                     <th>Skills</th>
+                                    <th>Education</th>
                                     <th>CV File</th>
                                     <th style="width: 160px;">Actions</th>
                                 </tr>
@@ -107,15 +131,46 @@
                             <tbody>
                                 @foreach (var p in Model)
                                 {
+                                @functions {
+                                    public string LimitWords(string text, int wordCount = 5)
+                                    {
+                                        if (string.IsNullOrWhiteSpace(text))
+                                            return "";
+
+                                        var words = text.Split(' ');
+                                        if (words.Length <= wordCount)
+                                            return text;
+
+                                        return string.Join(" ", words.Take(wordCount)) + "...";
+                                    }
+                                }
+
                                     <tr>
-                                        <td>
-                                            <input type="checkbox" name="ids" value="@p.Id" class="rowCheckbox" />
-                                        </td>
+                                        <td><input type="checkbox" name="ids" value="@p.Id" class="rowCheckbox" /></td>
                                         <td>@p.CandidateName</td>
                                         <td>@p.Email</td>
                                         <td>@p.Mobile</td>
-                                        <td>@p.Experience</td>
+                                       @*  <td>@p.Experience</td>
                                         <td>@p.Skills</td>
+                                        <td>@p.Education</td> *@
+                                        <td>
+                                            <span data-bs-toggle="tooltip" title="@p.Experience">
+                                                @LimitWords(p.Experience, 5)
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <span data-bs-toggle="tooltip" title="@p.Skills">
+                                                @LimitWords(p.Skills, 5)
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <span data-bs-toggle="tooltip" title="@p.Education">
+                                                @LimitWords(p.Education, 5)
+                                            </span>
+                                        </td>
+
                                         <td>
                                             @if (p.CandidateCV != null)
                                             {
@@ -128,6 +183,7 @@
                                                 <span class="text-danger">No File</span>
                                             }
                                         </td>
+
                                         <td>
                                             <div class="dropdown">
                                                 <button class="btn btn-sm btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -135,30 +191,19 @@
                                                 </button>
 
                                                 <ul class="dropdown-menu shadow-sm" style="font-size:12px;">
-                                                    <li>
-                                                        <a class="dropdown-item" asp-action="Edit" asp-route-id="@p.Id">
-                                                            <i class="fa fa-edit me-2"></i> Edit
-                                                        </a>
-                                                    </li>
-
-                                                    <li>
-                                                        <a class="dropdown-item" asp-action="Details" asp-route-id="@p.Id">
-                                                            <i class="fa fa-info-circle me-2"></i> Details
-                                                        </a>
-                                                    </li>
+                                                    <li><a class="dropdown-item" asp-action="Edit" asp-route-id="@p.Id"><i class="fa fa-edit me-2"></i> Edit</a></li>
+                                                    <li><a class="dropdown-item" asp-action="Details" asp-route-id="@p.Id"><i class="fa fa-info-circle me-2"></i> Details</a></li>
 
                                                     <li>
                                                         <a class="dropdown-item text-danger"
-                                                           asp-action="Delete"
-                                                           asp-route-id="@p.Id"
-                                                           onclick="return confirm('Are you sure you want to delete this candidate?');">
+                                                           asp-action="Delete" asp-route-id="@p.Id"
+                                                           onclick="return confirm('Are you sure?');">
                                                             <i class="fa fa-trash me-2"></i> Delete
                                                         </a>
                                                     </li>
                                                 </ul>
                                             </div>
                                         </td>
-
                                     </tr>
                                 }
                             </tbody>
@@ -173,26 +218,37 @@
     </div>
 </div>
 
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
 
 <script>
     $(document).ready(function () {
-        $('#candidatesTable').DataTable({
+
+        var table = $('#candidatesTable').DataTable({
             responsive: true,
             pageLength: 10,
+            order: [],
             lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
-            language: {
-                searchPlaceholder: "Search Candidates...",
-                search: ""
-            }
+            language: { searchPlaceholder: "Search...", search: "" }
+        });
+
+        // Column wise searching
+        $("#expSearch").on("keyup", function () {
+            table.column(4).search(this.value).draw();
+        });
+
+        $("#skillSearch").on("keyup", function () {
+            table.column(5).search(this.value).draw();
+        });
+
+        $("#eduSearch").on("keyup", function () {
+            table.column(6).search(this.value).draw();
         });
 
         // Select All Checkbox
         $('#selectAll').on('click', function () {
-            $('.rowCheckbox').prop('checked', this.checked);
+            $(".rowCheckbox").prop('checked', this.checked);
         });
     });
 
@@ -215,3 +271,10 @@
         document.querySelector('form').submit();
     }
 </script>
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+</script>
+

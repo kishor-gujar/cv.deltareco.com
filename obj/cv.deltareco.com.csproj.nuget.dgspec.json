@@ -81,6 +81,14 @@
               "target": "Package",
               "version": "[10.0.0, )"
             },
+            "Microsoft.Graph": {
+              "target": "Package",
+              "version": "[5.98.0, )"
+            },
+            "Microsoft.Identity.Client": {
+              "target": "Package",
+              "version": "[4.79.2, )"
+            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.4, )"

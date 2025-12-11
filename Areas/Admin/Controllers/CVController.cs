@@ -54,6 +54,38 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
             var cvs = _context.CandidateProfiles.AsNoTracking().ToList();
             return View(cvs);
         }
+        [HttpPost]
+        public async Task<IActionResult> ImportFromOneDrive(List<string> OneDriveFiles, List<string> FileNames)
+        {
+            if (OneDriveFiles == null || OneDriveFiles.Count == 0)
+                return Json(new { message = "No file received!" });
+
+            foreach (var url in OneDriveFiles)
+            {
+                using var client = new HttpClient();
+                var bytes = await client.GetByteArrayAsync(url);
+
+                var fileName = FileNames[OneDriveFiles.IndexOf(url)];
+                var filePath = Path.Combine("wwwroot/uploads/cv/", fileName);
+
+                System.IO.File.WriteAllBytes(filePath, bytes);
+
+                // Save to DB
+                var cv = new CandidateCV
+                {
+                    FileName = fileName,
+                    FilePath = "/uploads/cv/" + fileName,
+                    UploadedOn = DateTime.Now
+                };
+
+                _context.CandidateCVs.Add(cv);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Json(new { message = "Files imported successfully!" });
+        }
+
         [HttpGet]
         public IActionResult Upload()
         {
@@ -422,6 +454,35 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
             var match = Regex.Match(text, @"(\+91[-\s]?)?[0-9]{10}");
             return match.Success ? match.Value : "";
         }
+        public string ExtractSection(string text, string[] sectionNames)
+        {
+            text = text.Replace("\r", "").Replace("\t", "");
+
+            // Normalize
+            string lowerText = text.ToLower();
+
+            // Find matching header
+            foreach (var section in sectionNames)
+            {
+                int startIndex = lowerText.IndexOf(section.ToLower());
+                if (startIndex != -1)
+                {
+                    // Find next heading
+                    int nextHeader = lowerText.IndexOf("\n\n", startIndex + 1);
+                    if (nextHeader == -1)
+                        nextHeader = lowerText.Length;
+
+                    string result = text.Substring(startIndex, nextHeader - startIndex);
+
+                    // Clean heading name
+                    result = Regex.Replace(result, @"(?i)" + section + @"[:\-]?", "", RegexOptions.IgnoreCase).Trim();
+
+                    return result;
+                }
+            }
+
+            return "";
+        }
 
         private string ExtractName(string text)
         {
@@ -430,23 +491,51 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
             return "";
         }
 
-        private string ExtractSkills(string text)
+        //private string ExtractSkills(string text)
+        //{
+        //    var match = Regex.Match(text, @"Skills[:\- ]+([\s\S]{1,200})", RegexOptions.Multiline);
+        //    return match.Success ? match.Groups[1].Value.Trim() : "";
+        //}
+        public string ExtractExperience(string text)
         {
-            var match = Regex.Match(text, @"Skills[:\- ]+([\s\S]{1,200})", RegexOptions.Multiline);
-            return match.Success ? match.Groups[1].Value.Trim() : "";
+            string[] keywords = {
+        "experience", "work history", "employment", "professional experience",
+        "work experience", "career summary", "employment history"
+    };
+
+            return ExtractSection(text, keywords);
+        }
+        public string ExtractSkills(string text)
+        {
+            string[] keywords = {
+        "skills", "technical skills", "key skills", "core skills",
+        "competencies", "expertise", "technologies"
+    };
+
+            return ExtractSection(text, keywords);
+        }
+        public string ExtractEducation(string text)
+        {
+            string[] keywords = {
+        "education", "academic", "qualification", "degrees", "education background",
+        "academics", "academic profile"
+    };
+
+            return ExtractSection(text, keywords);
         }
 
-        private string ExtractEducation(string text)
-        {
-            var match = Regex.Match(text, @"Education[:\- ]+([\s\S]{1,300})", RegexOptions.Multiline);
-            return match.Success ? match.Groups[1].Value.Trim() : "";
-        }
+        //private string ExtractEducation(string text)
+        //{
+        //    var match = Regex.Match(text, @"Education[:\- ]+([\s\S]{1,300})", RegexOptions.Multiline);
+        //    return match.Success ? match.Groups[1].Value.Trim() : "";
+        //}
 
-        private string ExtractExperience(string text)
-        {
-            var match = Regex.Match(text, @"Experience[:\- ]+([\s\S]{1,300})", RegexOptions.Multiline);
-            return match.Success ? match.Groups[1].Value.Trim() : "";
-        }
+        //private string ExtractExperience(string text)
+        //{
+        //    var match = Regex.Match(text, @"Experience[:\- ]+([\s\S]{1,300})", RegexOptions.Multiline);
+        //    return match.Success ? match.Groups[1].Value.Trim() : "";
+        //}
+
 
     }
 }

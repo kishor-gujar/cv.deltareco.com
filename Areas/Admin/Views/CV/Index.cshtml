@@ -31,8 +31,14 @@
                 <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#uploadCVModal">
                     <i class="fa fa-upload me-1"></i> Upload New CV
                 </button>
+                <button class="btn btn-info me-2" onclick="openOneDrivePicker()">
+                    <i class="fa fa-cloud-upload"></i> Import from OneDrive
+                </button>
+
             </div>
         </div>
+        <div class="card shadow-lg rounded-4" style="backdrop-filter: blur(12px); background: rgba(255,255,255,0.15);">
+            <div class="card-body p-4">
 
         <!-- Filter Form -->
         <form method="get" class="row g-3 mb-4 align-items-end">
@@ -60,7 +66,7 @@
                 </button>
             </div>
         </form>
-
+        </div></div>
         <!-- Upload CV Modal -->
         <div class="modal fade" id="uploadCVModal" tabindex="-1" aria-labelledby="uploadCVModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-md modal-dialog-centered">
@@ -212,6 +218,49 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script type="text/javascript" src="https://js.live.net/v7.2/OneDrive.js"></script>
+
+    <script>
+        function openOneDrivePicker() {
+            var odOptions = {
+                clientId: "YOUR-CLIENT-ID-HERE",
+                action: "download",
+                multiSelect: true,
+                advanced: {
+                    filter: ".pdf,.doc,.docx"
+                },
+                success: function (files) {
+                    uploadFromOneDrive(files.value);
+                },
+                cancel: function () { },
+                error: function (e) { alert("OneDrive Error: " + e); }
+            };
+
+            OneDrive.open(odOptions);
+        }
+    </script>
+    <script>
+        function uploadFromOneDrive(files) {
+
+            let formData = new FormData();
+
+            files.forEach(f => {
+                formData.append("OneDriveFiles", f["@@microsoft.graph.downloadUrl"]);
+                formData.append("FileNames", f.name);
+            });
+
+            fetch("/Admin/CV/ImportFromOneDrive", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(result => {
+                alert(result.message);
+                location.reload();
+            })
+            .catch(err => alert("Upload failed: " + err));
+        }
+    </script>
 
     <script>
         $(document).ready(function () {

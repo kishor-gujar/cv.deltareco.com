@@ -1605,3 +1605,14 @@ C:\FossTechUzon\cv.deltareco.com\bin\Debug\net10.0\runtimes\win-arm64\native\lib
 C:\FossTechUzon\cv.deltareco.com\bin\Debug\net10.0\runtimes\win-x64\native\libSkiaSharp.dll
 C:\FossTechUzon\cv.deltareco.com\bin\Debug\net10.0\runtimes\win-x86\native\libSkiaSharp.dll
 C:\FossTechUzon\cv.deltareco.com\obj\Debug\net10.0\compressed\1lifdnok57-{0}-wgoyuhppe2-wgoyuhppe2.gz
+C:\FossTechUzon\cv.deltareco.com\bin\Debug\net10.0\Microsoft.Graph.dll
+C:\FossTechUzon\cv.deltareco.com\bin\Debug\net10.0\Microsoft.Graph.Core.dll
+C:\FossTechUzon\cv.deltareco.com\bin\Debug\net10.0\Microsoft.IdentityModel.Validators.dll
+C:\FossTechUzon\cv.deltareco.com\bin\Debug\net10.0\Microsoft.Kiota.Abstractions.dll
+C:\FossTechUzon\cv.deltareco.com\bin\Debug\net10.0\Microsoft.Kiota.Authentication.Azure.dll
+C:\FossTechUzon\cv.deltareco.com\bin\Debug\net10.0\Microsoft.Kiota.Http.HttpClientLibrary.dll
+C:\FossTechUzon\cv.deltareco.com\bin\Debug\net10.0\Microsoft.Kiota.Serialization.Form.dll
+C:\FossTechUzon\cv.deltareco.com\bin\Debug\net10.0\Microsoft.Kiota.Serialization.Json.dll
+C:\FossTechUzon\cv.deltareco.com\bin\Debug\net10.0\Microsoft.Kiota.Serialization.Multipart.dll
+C:\FossTechUzon\cv.deltareco.com\bin\Debug\net10.0\Microsoft.Kiota.Serialization.Text.dll
+C:\FossTechUzon\cv.deltareco.com\bin\Debug\net10.0\Std.UriTemplate.dll

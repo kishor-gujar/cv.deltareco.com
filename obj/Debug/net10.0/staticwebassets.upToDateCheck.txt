@@ -11605,6 +11605,9 @@ wwwroot\CVs\0f3091f4-8336-4ddf-940c-42cce4560af9.pdf
 wwwroot\CVs\25c92faf-0eb0-4cb7-8fd1-98c693200c80.docx
 wwwroot\CVs\a0e73b82-922a-4c31-ac0e-d8a2dadd9656.pdf
 wwwroot\CVs\aa8c73ef-8a42-48ce-bc17-63b111835997.pdf
+wwwroot\CVs\amlesh kumar yadav CV.doc
+wwwroot\CVs\AmleshYadav.pdf
+wwwroot\CVs\c8c960fd-f872-4e16-8d94-0540226c6a7b.docx
 wwwroot\CVs\Dummyresume (2).docx
 wwwroot\CVs\Provisional_Letter_Abhi_Support_Team.pdf
 wwwroot\CVs\Resume.docx
