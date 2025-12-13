@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("cv.deltareco.com")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+141f37c84af5b0e68bead03ed8566b6c3a69ac80")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d55c9f6e4625d0f4ede774fa023f5bf68c5d2b6b")]
 [assembly: System.Reflection.AssemblyProductAttribute("cv.deltareco.com")]
 [assembly: System.Reflection.AssemblyTitleAttribute("cv.deltareco.com")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

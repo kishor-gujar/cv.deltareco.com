@@ -328,13 +328,6 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
                 Skills = skills,
                 CandidateCVId = cv.Id   // IMPORTANT: Now FK will NOT fail
             };
-
-//            await _log.LogAsync("CV", "Extracted",
-//user.Id.ToString(),
-//null,
-//user,
-//User.Identity.Name
-//);
             _context.CandidateProfiles.Add(profile);
             await _context.SaveChangesAsync();
 
@@ -442,12 +435,17 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
             return text;
         }
 
-
         private string ExtractEmail(string text)
         {
-            var match = Regex.Match(text, @"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}");
+            var match = Regex.Match(
+                text,
+                @"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+\.(?:[a-zA-Z]{2,})\b",
+                RegexOptions.IgnoreCase
+            );
+
             return match.Success ? match.Value : "";
         }
+
 
         private string ExtractMobile(string text)
         {
@@ -456,40 +454,103 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
         }
         public string ExtractSection(string text, string[] sectionNames)
         {
-            text = text.Replace("\r", "").Replace("\t", "");
+            if (string.IsNullOrWhiteSpace(text))
+                return "";
 
-            // Normalize
-            string lowerText = text.ToLower();
+            string cleanText = Regex.Replace(text, @"\r|\t", "");
+            string lowerText = cleanText.ToLower();
 
-            // Find matching header
+            int startIndex = -1;
+            string matchedHeader = "";
+
+            // 1️⃣ Find section start
             foreach (var section in sectionNames)
             {
-                int startIndex = lowerText.IndexOf(section.ToLower());
-                if (startIndex != -1)
+                int index = lowerText.IndexOf(section.ToLower());
+                if (index != -1)
                 {
-                    // Find next heading
-                    int nextHeader = lowerText.IndexOf("\n\n", startIndex + 1);
-                    if (nextHeader == -1)
-                        nextHeader = lowerText.Length;
+                    startIndex = index;
+                    matchedHeader = section;
+                    break;
+                }
+            }
 
-                    string result = text.Substring(startIndex, nextHeader - startIndex);
+            if (startIndex == -1)
+                return "";
 
-                    // Clean heading name
-                    result = Regex.Replace(result, @"(?i)" + section + @"[:\-]?", "", RegexOptions.IgnoreCase).Trim();
+            // 2️⃣ Find nearest next heading
+            int endIndex = lowerText.Length;
 
-                    return result;
+            string[] allHeadings =
+            {
+        "education", "experience", "skills","skills summary", "projects", "certifications",
+        "summary", "objective", "profile", "employment", "work experience"
+    };
+
+            foreach (var heading in allHeadings)
+            {
+                int index = lowerText.IndexOf(heading, startIndex + matchedHeader.Length);
+                if (index != -1 && index < endIndex)
+                {
+                    endIndex = index;
+                }
+            }
+
+            // 3️⃣ Extract section text
+            string sectionText = cleanText.Substring(startIndex, endIndex - startIndex);
+
+            // 4️⃣ Remove heading word
+            sectionText = Regex.Replace(
+                sectionText,
+                @"(?i)" + Regex.Escape(matchedHeader) + @"[:\-]?",
+                ""
+            ).Trim();
+
+            return sectionText;
+        }
+
+        private string ExtractName(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return "";
+
+            var lines = Regex
+      .Split(text, @"[\r\n|•\-]+")
+      .Select(l => l.Trim())
+      .Where(l => l.Length > 2 && l.Length < 60)
+      .Take(20);
+
+
+            foreach (var line in lines)
+            {
+                string lower = line.ToLower();
+
+                if (lower.Contains("@") ||
+                    lower.Contains("resume") ||
+                    lower.Contains("cv") ||
+                    lower.Contains("email") ||
+                    lower.Contains("mobile") ||
+                    lower.Contains("phone") ||
+                    Regex.IsMatch(lower, @"\d"))
+                    continue;
+
+                // ❌ Ignore section headings
+                if (Regex.IsMatch(lower, @"^(education|experience|skills|profile|summary|objective)$"))
+                    continue;
+
+                // ✅ Allow common name formats
+                if (Regex.IsMatch(line, @"^[A-Za-z.\-\s]+$"))
+                {
+                    // Name usually has 2–4 words
+                    int wordCount = line.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+                    if (wordCount >= 2 && wordCount <= 4)
+                        return line.Trim();
                 }
             }
 
             return "";
         }
 
-        private string ExtractName(string text)
-        {
-            var match = Regex.Match(text, @"Name[:\- ]+([A-Za-z ]+)");
-            if (match.Success) return match.Groups[1].Value.Trim();
-            return "";
-        }
 
         //private string ExtractSkills(string text)
         //{
@@ -508,7 +569,7 @@ namespace cv.deltareco.com.Areas.Admin.Controllers
         public string ExtractSkills(string text)
         {
             string[] keywords = {
-        "skills", "technical skills", "key skills", "core skills",
+        "skills","skills summary", "technical skills", "key skills", "core skills",
         "competencies", "expertise", "technologies"
     };
 
